@@ -1,0 +1,4 @@
+interface:
+  display_name: "OKF Archivist"
+  short_description: "Maintain OKF wiki routing and docs."
+  default_prompt: "Use $okf-archivist to check whether this repository change needs OKF wiki updates."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "OKF Wiki Initialiser"
+  short_description: "Bootstrap OKF wiki infrastructure."
+  default_prompt: "Use $okf-wiki-initialiser to bootstrap OKF wiki docs for this repository."

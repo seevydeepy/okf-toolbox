@@ -1,0 +1,23 @@
+{
+  "name": "okf-toolbox",
+  "version": "0.1.0",
+  "description": "Shared OKF wiki maintenance and bootstrap skills.",
+  "author": {
+    "name": "Local developer"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "OKF Toolbox",
+    "shortDescription": "Maintain and bootstrap OKF wikis.",
+    "longDescription": "Shared Codex skills for branch-local OKF wiki maintenance, routing health, and initial OKF wiki bootstrapping.",
+    "developerName": "Local developer",
+    "category": "Productivity",
+    "capabilities": [
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Check this change for OKF wiki impact.",
+      "Bootstrap OKF wiki infrastructure here."
+    ]
+  }
+}
