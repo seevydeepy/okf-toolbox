@@ -1,0 +1,126 @@
+# OKF Bootstrap Contract
+
+Use this contract when bootstrapping a repository that has no existing OKF examples. The bootstrap must leave enough structure for `okf-archivist` to maintain routing later.
+
+## Required files
+
+A conformant shallow bootstrap creates these files:
+
+```text
+documentation/solutions.manifest.json
+documentation/wiki.html
+docs/okf/index.md
+docs/okf/<solution-id>/routing_guidance.card
+docs/okf/<solution-id>/solution.md
+docs/okf/<solution-id>/routing.md
+docs/okf/<solution-id>/log.md
+docs/okf/<solution-id>/wiki.html
+tools/docs/build_all_wikis.ps1
+tools/docs/build_okf_wikis.py
+tools/docs/map_changed_paths.py
+```
+
+Generated files are `documentation/wiki.html`, `docs/okf/index.md`, and each `docs/okf/<solution-id>/wiki.html`. Keep generated content deterministic: no timestamps.
+
+## Bootstrap script
+
+Prefer the bundled script over hand-writing infrastructure:
+
+```powershell
+python <okf-toolbox>\skills\okf-wiki-initialiser\scripts\bootstrap_okf.py --repo . --spec okf-bootstrap.json
+```
+
+Minimal `okf-bootstrap.json`:
+
+```json
+{
+  "solutions": [
+    {
+      "id": "web",
+      "name": "Web",
+      "summary": "User-facing web application.",
+      "owned_paths": ["Web/"],
+      "keywords": ["controller", "view", "route"]
+    }
+  ]
+}
+```
+
+For one-off use, repeat `--solution` instead:
+
+```powershell
+python <skill>\scripts\bootstrap_okf.py --repo . --solution "web|Web|User-facing web application.|Web/|controller,view,route"
+```
+
+Use lower-case kebab-case ids. Put `/` on directory prefixes (`Web/`), and exact paths for files.
+
+## Manifest contract
+
+`documentation/solutions.manifest.json` must contain:
+
+- `okf_version`: string, currently `1.0`.
+- `wiki.root`: normally `docs/okf`.
+- `wiki.umbrella`: normally `documentation/wiki.html`.
+- `routing.primary_doc`: `routing_guidance.card`.
+- `routing.bundle_docs`: at least `solution.md`, `routing.md`, `log.md`.
+- `excluded_paths`: generated or OKF-maintenance paths the Archivist should ignore for ordinary code-change routing.
+- `solutions[]`: one entry per logical solution/subsystem.
+
+Each solution entry must contain:
+
+- `id`, `name`, `summary`.
+- `owned_paths`: path prefixes or exact files used by `map_changed_paths.py`.
+- `routing_keywords`: search/symptom terms.
+- `docs.root`, `docs.routing_guidance_card`, `docs.solution`, `docs.routing`, `docs.log`, `docs.wiki`.
+
+## Bundle contract
+
+`routing_guidance.card` is the first-hop card. Keep it short and route-focused:
+
+```text
+# <Name> Routing Card
+
+id: <id>
+owned_paths:
+  - <path/>
+read_first:
+  - docs/okf/<id>/routing_guidance.card
+  - docs/okf/<id>/solution.md
+keywords:
+  - <keyword>
+handoffs:
+  - Unknown until deep backfill.
+```
+
+`solution.md` captures stable ownership: purpose, owned paths, entrypoints, neighbours, and maintenance notes.
+
+`routing.md` captures routing: when to read this bundle, symptoms/search terms, first files to inspect, and handoffs.
+
+`log.md` records bootstrap and backfill evidence, including ambiguous ownership and known gaps.
+
+## Mapper contract
+
+`python tools/docs/map_changed_paths.py <paths...>` prints JSON with:
+
+- `matched`: paths mapped to one solution.
+- `excluded`: OKF/generated/tooling paths intentionally ignored.
+- `unmapped`: paths no solution owns.
+- `ambiguous`: paths matching more than one solution.
+
+Archivist reports excluded, unmapped, and ambiguous paths instead of hiding them.
+
+## Validation
+
+After bootstrap, run:
+
+```powershell
+.\tools\docs\build_all_wikis.ps1
+.\tools\docs\build_all_wikis.ps1 -Check
+python tools/docs/map_changed_paths.py <representative-owned-path>
+```
+
+A shallow pass is complete only when the build/check pass, every solution has the required bundle files, representative owned paths map correctly, and ambiguous ownership is recorded rather than guessed away.
+
+## Deep backfill boundary
+
+Do not run deep backfill during the default bootstrap. After the shallow pass, one explorer may be assigned per solution to fill only that solution's `solution.md`, `routing.md`, and `log.md`. The main agent must review handoffs and rerun the validation above.

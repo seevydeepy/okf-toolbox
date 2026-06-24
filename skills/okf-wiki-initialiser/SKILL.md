@@ -1,41 +1,47 @@
 ---
 name: okf-wiki-initialiser
-description: Use when a repository does not yet have OKF wiki infrastructure, or when the user explicitly asks to bootstrap, initialise, repair, or backfill an OKF-conformant wiki. Creates a shallow branch-local OKF setup with documentation/solutions.manifest.json, docs/okf solution bundles, mapping/build tooling, and generated readers; then, only when explicitly requested, orchestrates deeper per-solution/subsystem explorer agents to backfill routing and bundle detail.
+description: "Use when a repository does not yet have OKF wiki infrastructure, or when the user explicitly asks to bootstrap, initialise, repair, or backfill an OKF-conformant wiki. Creates a self-contained shallow branch-local OKF setup using the bundled bootstrap contract and script: documentation/solutions.manifest.json, docs/okf solution bundles, routing_guidance.card files, mapping/build tooling, and generated wiki readers; then, only when explicitly requested, orchestrates deeper per-solution/subsystem explorer agents to backfill routing and bundle detail."
 ---
 
 # OKF Wiki Initialiser
 
-Bootstrap OKF with the smallest useful first pass, then stop unless the user asks for deep backfill.
+Bootstrap OKF from zero. Do not rely on another repo having examples.
+
+## Required Reference
+
+Before writing files, read `references/bootstrap-contract.md`. It defines the manifest schema, required bundle files, generated reader contract, mapper output, and validation checklist.
 
 ## Gate
 
-- If `documentation/solutions.manifest.json` and `docs/okf/` already exist, do not reinitialise; repair only the missing/broken pieces the user asked about.
-- If ownership boundaries are ambiguous enough to create bad routing, ask before writing the manifest.
-- Do not borrow another branch or repo's docs as live truth. Use them only as implementation examples.
+- If `documentation/solutions.manifest.json` and `docs/okf/` already exist, do not reinitialise; repair only the missing or broken pieces the user asked about.
+- If ownership boundaries are too ambiguous to create useful routing, ask before writing the manifest.
+- Do not point at another branch/repo's docs as live truth. Use existing repos only for source-code understanding, not as required templates.
 
 ## Shallow Pass
 
 1. Respect local `AGENTS.md`, `.codex/config.toml`, and repo memory.
-2. Inspect `git status --short`, top-level layout, build files, solution/project files, existing docs, and obvious runtime/application entrypoints.
-3. Choose logical solutions/subsystems from existing boundaries: projects, apps, top-level modules, services, routes, packages, or domain folders. Prefer fewer accurate bundles over many guessed bundles.
-4. Reuse the nearest local OKF implementation for infrastructure when available, copying only portable pieces such as:
-   - `documentation/solutions.manifest.json` shape;
-   - `tools/docs/build_all_wikis.ps1`;
-   - `tools/docs/map_changed_paths.py`;
-   - generated wiki reader templates/helpers.
-5. Create shallow bundles under `docs/okf/<solution>/` with only evidence-backed routing:
-   - `solution.md`: purpose, entrypoints, owned paths, neighbouring systems;
-   - `routing.md`: first-hop routing card, symptoms/search terms, handoffs;
-   - `log.md`: bootstrap notes and known gaps.
-6. Add manifest entries that point changed paths to first-hop docs. Mark ambiguous paths in the log instead of guessing.
-7. Build and check the wiki pipeline:
+2. Inspect `git status --short`, top-level layout, build files, project/package files, existing docs, and obvious runtime/application entrypoints.
+3. Choose logical solutions/subsystems from real boundaries: projects, apps, services, packages, routes, modules, or domain folders. Prefer fewer accurate bundles over many guessed bundles.
+4. Create a tiny bootstrap spec, usually in a temp file, with each solution's `id`, `name`, `summary`, `owned_paths`, and `keywords`.
+5. Run the bundled bootstrapper:
+
+```powershell
+python <okf-toolbox>\skills\okf-wiki-initialiser\scripts\bootstrap_okf.py --repo . --spec <spec.json>
+```
+
+Use repeated `--solution "id|Name|Summary|path1,path2|keyword1,keyword2"` only for very small repos.
+
+The script creates the full conformant infrastructure: manifest, per-solution bundles, `routing_guidance.card`, mapper, wiki builder, and generated-reader pipeline.
+
+6. Run the generated pipeline:
 
 ```powershell
 .\tools\docs\build_all_wikis.ps1
 .\tools\docs\build_all_wikis.ps1 -Check
+python tools/docs/map_changed_paths.py <representative-owned-path>
 ```
 
-If no portable generator seed exists, create the manifest and shallow bundles, then report generator bootstrap as the blocker instead of inventing a large bespoke generator.
+7. Remove any temporary bootstrap spec unless the user wants it tracked.
 
 ## Deep Backfill
 
@@ -49,4 +55,5 @@ Run this only after a successful shallow pass and explicit user approval.
 
 ## Report
 
-State solutions created, tooling copied or skipped, validation results, ambiguous ownership, and whether deep backfill is ready or still blocked.
+State solutions created, validation commands/results, mapper matched/excluded/unmapped/ambiguous examples, whether the shallow pass is Archivist-ready, and whether deep backfill is ready or blocked.
+

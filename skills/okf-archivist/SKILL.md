@@ -21,7 +21,7 @@ Wrappers may narrow this gate for a repo, such as `vp/`/`Web/` only or all game/
 
 1. Respect local `AGENTS.md`, `.codex/config.toml`, and repo memory first.
 2. Inspect current state: `git status --short`, `git diff --name-status`, `git diff --stat`, and relevant hunks, including staged and untracked files.
-3. Load `documentation/solutions.manifest.json`; for known changed paths, run `python tools/docs/map_changed_paths.py` if present.
+3. Load `documentation/solutions.manifest.json`; for known changed paths, run `python tools/docs/map_changed_paths.py` if present. For repos bootstrapped by `okf-wiki-initialiser`, the manifest/docs/tooling contract is in `skills/okf-wiki-initialiser/references/bootstrap-contract.md`.
 4. Read only the matched first-hop docs before broad prose: prefer each solution's `routing_guidance.card`, then `solution.md` only if ownership or impact is still unclear.
 5. Decide doc impact. Update OKF docs when behaviour, ownership, entrypoints, public API/controller/service surface, domain model, persistence, cross-solution contracts, runtime/build wiring, or future file routing changed. Skip mechanical refactors, test-only edits, typo fixes, generated churn, and cleanup with no behaviour/routing change.
 6. Check routing health using evidence from the turn. Fix the smallest routing doc when there is a clear:
@@ -51,3 +51,4 @@ Use `-BrowserSmoke` when generator/template/reader JavaScript/browser behaviour 
 ## Report
 
 Say what was touched or skipped, why, routing-health outcome, validation commands/results, and any bootstrap blocker.
+
