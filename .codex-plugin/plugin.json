@@ -1,6 +1,6 @@
 {
   "name": "okf-toolbox",
-  "version": "0.1.0",
+  "version": "0.1.0+codex.20260624213959",
   "description": "Shared OKF wiki maintenance and bootstrap skills.",
   "author": {
     "name": "Local developer"

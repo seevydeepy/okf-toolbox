@@ -31,8 +31,8 @@ Bootstrap OKF with the smallest useful first pass, then stop unless the user ask
 7. Build and check the wiki pipeline:
 
 ```powershell
-.	ools\docsuild_all_wikis.ps1
-.	ools\docsuild_all_wikis.ps1 -Check
+.\tools\docs\build_all_wikis.ps1
+.\tools\docs\build_all_wikis.ps1 -Check
 ```
 
 If no portable generator seed exists, create the manifest and shallow bundles, then report generator bootstrap as the blocker instead of inventing a large bespoke generator.
