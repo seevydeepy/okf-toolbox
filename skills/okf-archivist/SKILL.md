@@ -35,8 +35,8 @@ Wrappers may narrow this gate for a repo, such as `vp/`/`Web/` only or all game/
 8. Rebuild and validate with the repo pipeline, normally:
 
 ```powershell
-.	ools\docsuild_all_wikis.ps1
-.	ools\docsuild_all_wikis.ps1 -Check
+.\tools\docs\build_all_wikis.ps1
+.\tools\docs\build_all_wikis.ps1 -Check
 ```
 
 Use `-BrowserSmoke` when generator/template/reader JavaScript/browser behaviour changed. Run repo-required build/tests for implementation changes unless the repo wrapper explicitly narrows validation.
