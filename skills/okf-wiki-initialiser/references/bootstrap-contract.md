@@ -125,4 +125,11 @@ A shallow pass is complete only when the build/check pass, every solution has th
 
 Do not run deep backfill during the default bootstrap. After the shallow pass, one explorer may be assigned per solution to fill only that solution's `solution.md`, `routing.md`, and `log.md`. The main agent must review handoffs and rerun the validation above.
 
+Before accepting deep backfill:
+
+- Run a full tracked-file mapper pass, for example `$paths = git ls-files; python tools/docs/map_changed_paths.py @paths` in PowerShell; report and fix unexpected `unmapped` or `ambiguous` paths.
+- Verify every `routing_guidance.card` keeps `read_first` starting with `docs/okf/<id>/routing_guidance.card` and `docs/okf/<id>/solution.md`.
+- Keep broad source files out of `routing_guidance.card` unless they are the universal first owner file; put symptom-specific source routes in `routing.md`.
+- Rebuild/check the generated wiki readers, and inspect generated links when generator or Markdown shape changed.
+
 The final bootstrap report must offer the deep backfill as the next step. Do not frame it as merely "skipped"; state whether it is ready or blocked, and ask the user to approve it if they want the wiki filled beyond the shallow scaffold.

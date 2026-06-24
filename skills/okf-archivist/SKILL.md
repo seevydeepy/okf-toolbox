@@ -27,8 +27,11 @@ Wrappers may narrow this gate for a repo, such as `vp/`/`Web/` only or all game/
 6. Check routing health using evidence from the turn. Fix the smallest routing doc when there is a clear:
    - wrong subsystem route;
    - broad-doc detour before owner files;
+   - `routing_guidance.card` missing its own card or `solution.md` at the start of `read_first`;
+   - large source files in `routing_guidance.card` that should live in symptom-specific `routing.md` routes;
    - missing symptom/search vocabulary;
    - cross-solution handoff;
+   - unexpected mapper `unmapped` or `ambiguous` paths;
    - stale file, ownership, runtime, or build claim.
    Do not invent token/time/command-count targets during routine archivist work.
 7. Update shallowly: usually `docs/okf/<solution>/routing.md`, `solution.md`, `log.md`, and sometimes `documentation/solutions.manifest.json`. If the repo still has a legacy context map or compatibility wiki pages, keep them aligned only where the change affects routing or claims.
