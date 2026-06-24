@@ -124,3 +124,5 @@ A shallow pass is complete only when the build/check pass, every solution has th
 ## Deep backfill boundary
 
 Do not run deep backfill during the default bootstrap. After the shallow pass, one explorer may be assigned per solution to fill only that solution's `solution.md`, `routing.md`, and `log.md`. The main agent must review handoffs and rerun the validation above.
+
+The final bootstrap report must offer the deep backfill as the next step. Do not frame it as merely "skipped"; state whether it is ready or blocked, and ask the user to approve it if they want the wiki filled beyond the shallow scaffold.

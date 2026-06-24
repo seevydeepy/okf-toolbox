@@ -55,5 +55,11 @@ Run this only after a successful shallow pass and explicit user approval.
 
 ## Report
 
-State solutions created, validation commands/results, mapper matched/excluded/unmapped/ambiguous examples, whether the shallow pass is Archivist-ready, and whether deep backfill is ready or blocked.
+State solutions created, validation commands/results, mapper matched/excluded/unmapped/ambiguous examples, and whether the shallow pass is Archivist-ready.
+
+End with an explicit deep-backfill call to action. Do not merely say it was skipped. Say whether it is ready or blocked, why, and invite the user to approve the next pass, for example:
+
+```text
+Next step available: the shallow OKF wiki is ready for deep backfill. Say "run the deep backfill" and I will launch per-solution explorers to fill entrypoints, handoffs, routing evidence, and logs.
+```
 
