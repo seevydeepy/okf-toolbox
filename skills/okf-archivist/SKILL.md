@@ -15,7 +15,7 @@ Skip and state why when:
 - The turn has no relevant code/config/tooling changes after generated wiki artefacts and OKF-only churn are excluded.
 - The turn only changed OKF docs and the generated readers were already rebuilt and checked.
 
-Wrappers may narrow this gate for a repo, such as `vp/`/`Web/` only or all game/runtime/tooling paths.
+Wrappers may narrow this gate to explicit solution-owned paths or broad application/tooling paths for that repository.
 
 ## Workflow
 

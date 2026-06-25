@@ -42,7 +42,7 @@ Minimal `okf-bootstrap.json`:
       "id": "web",
       "name": "Web",
       "summary": "User-facing web application.",
-      "owned_paths": ["Web/"],
+      "owned_paths": ["src/web/"],
       "keywords": ["controller", "view", "route"]
     }
   ]
@@ -52,10 +52,10 @@ Minimal `okf-bootstrap.json`:
 For one-off use, repeat `--solution` instead:
 
 ```powershell
-python <skill>\scripts\bootstrap_okf.py --repo . --solution "web|Web|User-facing web application.|Web/|controller,view,route"
+python <skill>\scripts\bootstrap_okf.py --repo . --solution "web|Web|User-facing web application.|src/web/|controller,view,route"
 ```
 
-Use lower-case kebab-case ids. Put `/` on directory prefixes (`Web/`), and exact paths for files.
+Use lower-case kebab-case ids. Put `/` on directory prefixes (`src/web/`), and exact paths for files.
 
 ## Manifest contract
 
