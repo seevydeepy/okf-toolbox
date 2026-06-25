@@ -35,13 +35,22 @@ def run(args: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
 def write_spec(repo: Path) -> Path:
     spec = repo / "okf-bootstrap.json"
     spec.write_text(json.dumps({
-        "solutions": [{
-            "id": "web",
-            "name": "Web",
-            "summary": "Demo web surface.",
-            "owned_paths": ["src/web/"],
-            "keywords": ["route", "page"],
-        }]
+        "solutions": [
+            {
+                "id": "web",
+                "name": "Web",
+                "summary": "Demo web surface.",
+                "owned_paths": ["src/web/"],
+                "keywords": ["route", "page"],
+            },
+            {
+                "id": "api",
+                "name": "API",
+                "summary": "Demo API surface.",
+                "owned_paths": ["src/api/"],
+                "keywords": ["endpoint", "payload"],
+            },
+        ]
     }), encoding="utf-8")
     return spec
 
@@ -51,9 +60,41 @@ def run_build_checks(repo: Path) -> None:
     if ps:
         run([ps, "-ExecutionPolicy", "Bypass", "-File", str(repo / "tools/docs/build_all_wikis.ps1")], repo)
         run([ps, "-ExecutionPolicy", "Bypass", "-File", str(repo / "tools/docs/build_all_wikis.ps1"), "-Check"], repo)
+        run([ps, "-ExecutionPolicy", "Bypass", "-File", str(repo / "tools/docs/build_all_wikis.ps1"), "-Check", "-BrowserSmoke"], repo)
     else:
         run([sys.executable, str(repo / "tools/docs/build_okf_wikis.py"), "--repo", str(repo)], repo)
         run([sys.executable, str(repo / "tools/docs/build_okf_wikis.py"), "--repo", str(repo), "--check"], repo)
+        run([sys.executable, str(repo / "tools/docs/build_okf_wikis.py"), "--repo", str(repo), "--check", "--browser-smoke"], repo)
+
+
+def create_demo_sources(repo: Path) -> None:
+    (repo / "src" / "web").mkdir(parents=True)
+    (repo / "src" / "web" / "app.txt").write_text("demo\n", encoding="utf-8")
+    (repo / "src" / "api").mkdir(parents=True)
+    (repo / "src" / "api" / "api.txt").write_text("demo\n", encoding="utf-8")
+
+
+def add_link_fixture(repo: Path, root: str) -> None:
+    solution = repo / root / "okf" / "web" / "solution.md"
+    solution.write_text(
+        solution.read_text(encoding="utf-8")
+        + "\n## Link Smoke\n\n"
+        + "- [Routing details](routing.md)\n"
+        + "- [API bundle](../api/solution.md)\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+
+
+def assert_rich_wiki_links(repo: Path, root: str) -> None:
+    web_html = (repo / root / "okf" / "web" / "wiki.html").read_text(encoding="utf-8")
+    umbrella_html = (repo / root / "wiki.html").read_text(encoding="utf-8")
+    assert "single-file OKF reader" in web_html
+    assert "#doc/routing.md" in web_html
+    assert "../api/wiki.html#doc/solution.md" in web_html
+    assert "[Routing details](routing.md)" not in web_html
+    assert "#doc/solutions/web/routing.md" in umbrella_html
+    assert "#doc/solutions/api/solution.md" in umbrella_html
 
 
 def assert_manifest_root(repo: Path, root: str) -> None:
@@ -68,12 +109,13 @@ def main() -> int:
     bootstrap_module = load_bootstrap_module()
     with tempfile.TemporaryDirectory(prefix="okf-bootstrap-") as tmp:
         repo = Path(tmp)
-        (repo / "src" / "web").mkdir(parents=True)
-        (repo / "src" / "web" / "app.txt").write_text("demo\n", encoding="utf-8")
+        create_demo_sources(repo)
         (repo / "AGENTS.md").write_text("Use British English.\n", encoding="utf-8")
         spec = write_spec(repo)
         run([sys.executable, str(BOOTSTRAP), "--repo", str(repo), "--spec", str(spec)], repo)
+        add_link_fixture(repo, "docs")
         run_build_checks(repo)
+        assert_rich_wiki_links(repo, "docs")
         mapped = run([sys.executable, str(repo / "tools/docs/map_changed_paths.py"), "--repo", str(repo), "src/web/app.txt"], repo)
         payload = json.loads(mapped.stdout)
         assert payload["matched"][0]["solution_id"] == "web"
@@ -95,11 +137,12 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="okf-bootstrap-existing-docs-") as tmp:
         repo = Path(tmp)
         (repo / "documentation").mkdir()
-        (repo / "src" / "web").mkdir(parents=True)
-        (repo / "src" / "web" / "app.txt").write_text("demo\n", encoding="utf-8")
+        create_demo_sources(repo)
         spec = write_spec(repo)
         run([sys.executable, str(BOOTSTRAP), "--repo", str(repo), "--spec", str(spec)], repo)
+        add_link_fixture(repo, "documentation")
         run_build_checks(repo)
+        assert_rich_wiki_links(repo, "documentation")
         assert (repo / "documentation/solutions.manifest.json").exists()
         assert (repo / "documentation/wiki.html").exists()
         assert (repo / "documentation/okf/web/routing_guidance.card").exists()
@@ -109,8 +152,7 @@ def main() -> int:
         repo = Path(tmp)
         (repo / "manual").mkdir()
         (repo / "wiki").mkdir()
-        (repo / "src" / "web").mkdir(parents=True)
-        (repo / "src" / "web" / "app.txt").write_text("demo\n", encoding="utf-8")
+        create_demo_sources(repo)
         spec = write_spec(repo)
         run([sys.executable, str(BOOTSTRAP), "--repo", str(repo), "--spec", str(spec)], repo)
         assert (repo / "wiki/solutions.manifest.json").exists()

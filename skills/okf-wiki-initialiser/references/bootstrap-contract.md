@@ -29,6 +29,8 @@ tools/docs/map_changed_paths.py
 
 Generated files are `<docs-root>/wiki.html`, `<docs-root>/okf/index.md`, and each `<docs-root>/okf/<solution-id>/wiki.html`. Keep generated content deterministic: no timestamps.
 
+Generated HTML readers are self-contained OKF browsers, not flat dumps. They must provide sidebar navigation, search, type filtering, working Markdown links, outgoing-link and backlink sections, and route metadata panels when frontmatter supplies routing fields. The umbrella wiki is built as a virtual bundle over all solution bundles, so cross-solution links can be browsed from one file.
+
 `AGENTS.md` is created or patched with a marked `OKF-ROUTING` block. Preserve any existing instructions outside the markers. The block tells Codex to use `$okf-router` at the start of substantive repository work and `$okf-archivist` at the end of substantive changes.
 
 ## Bootstrap script
@@ -125,10 +127,13 @@ After bootstrap, run:
 ```powershell
 .\tools\docs\build_all_wikis.ps1
 .\tools\docs\build_all_wikis.ps1 -Check
+.\tools\docs\build_all_wikis.ps1 -Check -BrowserSmoke
 python tools/docs/map_changed_paths.py <representative-owned-path>
 ```
 
 A shallow pass is complete only when the build/check pass, every solution has the required bundle files, representative owned paths map correctly, `AGENTS.md` contains one `OKF-ROUTING` block, and ambiguous ownership is recorded rather than guessed away.
+
+`-BrowserSmoke` must reject structurally invalid generated readers: missing OKF data payload, missing document navigation, missing article host, or no internal links. Markdown links in bundle docs must render as HTML anchors. Per-solution readers keep in-bundle links as `#doc/...` links and rewrite cross-solution authoring links of the form `../<solution-id>/<page>` to the peer solution `wiki.html`; the umbrella reader rewrites those links to `#doc/solutions/<solution-id>/<page>`.
 
 ## Deep backfill boundary
 
