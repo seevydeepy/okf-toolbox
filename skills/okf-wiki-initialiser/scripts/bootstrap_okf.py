@@ -85,6 +85,35 @@ def write(path: Path, text: str, force: bool) -> None:
     path.write_text(dedent(text).strip() + "\n", encoding="utf-8", newline="\n")
 
 
+AGENTS_START = "<!-- OKF-ROUTING:START -->"
+AGENTS_END = "<!-- OKF-ROUTING:END -->"
+AGENTS_BLOCK = dedent(f"""
+    {AGENTS_START}
+    ## OKF Routing
+
+    At the start of substantive repository work, if `documentation/solutions.manifest.json` exists, use `$okf-router` to select the relevant OKF bundle before broad source inspection. If the skill is unavailable, manually inspect the manifest and read only the matched `docs/okf/<id>/routing_guidance.card`, then `solution.md` if needed.
+
+    At the end of substantive code, config, tooling, ownership, or routing changes, use `$okf-archivist` to check whether OKF docs need updating.
+    {AGENTS_END}
+""").strip()
+
+
+def patch_agents(repo: Path) -> str:
+    path = repo / "AGENTS.md"
+    original = path.read_text(encoding="utf-8") if path.exists() else ""
+    pattern = re.compile(f"{re.escape(AGENTS_START)}.*?{re.escape(AGENTS_END)}", re.S)
+    if pattern.search(original):
+        updated = pattern.sub(AGENTS_BLOCK, original).rstrip() + "\n"
+    elif original.strip():
+        updated = original.rstrip() + "\n\n" + AGENTS_BLOCK + "\n"
+    else:
+        updated = AGENTS_BLOCK + "\n"
+    if updated != original:
+        path.write_text(updated, encoding="utf-8", newline="\n")
+        return "updated"
+    return "unchanged"
+
+
 def solution_docs(solution: Solution) -> dict[str, str]:
     root = f"docs/okf/{solution.id}"
     return {
@@ -441,7 +470,9 @@ def bootstrap(repo: Path, solutions: list[Solution], force: bool) -> None:
     write(repo / "tools/docs/build_okf_wikis.py", BUILD_OKF_WIKIS, True)
     write(repo / "tools/docs/map_changed_paths.py", MAP_CHANGED_PATHS, True)
     write(repo / "tools/docs/build_all_wikis.ps1", BUILD_ALL_WIKIS_PS1, True)
+    agents_status = patch_agents(repo)
     print(f"Bootstrapped OKF for {len(solutions)} solution(s).")
+    print(f"AGENTS.md OKF routing block {agents_status}.")
     print("Run: .\\tools\\docs\\build_all_wikis.ps1")
     print("Run: .\\tools\\docs\\build_all_wikis.ps1 -Check")
 

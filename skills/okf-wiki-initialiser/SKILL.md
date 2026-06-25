@@ -31,7 +31,7 @@ python <okf-toolbox>\skills\okf-wiki-initialiser\scripts\bootstrap_okf.py --repo
 
 Use repeated `--solution "id|Name|Summary|path1,path2|keyword1,keyword2"` only for very small repos.
 
-The script creates the full conformant infrastructure: manifest, per-solution bundles, `routing_guidance.card`, mapper, wiki builder, and generated-reader pipeline.
+The script creates the full conformant infrastructure: manifest, per-solution bundles, `routing_guidance.card`, mapper, wiki builder, generated-reader pipeline, and a marked root `AGENTS.md` OKF routing block.
 
 6. Run the generated pipeline:
 
@@ -40,6 +40,8 @@ The script creates the full conformant infrastructure: manifest, per-solution bu
 .\tools\docs\build_all_wikis.ps1 -Check
 python tools/docs/map_changed_paths.py <representative-owned-path>
 ```
+
+Confirm `AGENTS.md` contains one `OKF-ROUTING` marker block that calls `$okf-router` at the start of substantive work and `$okf-archivist` at the end of substantive changes.
 
 7. Remove any temporary bootstrap spec unless the user wants it tracked.
 

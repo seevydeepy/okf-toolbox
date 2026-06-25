@@ -9,6 +9,7 @@ A conformant shallow bootstrap creates these files:
 ```text
 documentation/solutions.manifest.json
 documentation/wiki.html
+AGENTS.md
 docs/okf/index.md
 docs/okf/<solution-id>/routing_guidance.card
 docs/okf/<solution-id>/solution.md
@@ -21,6 +22,8 @@ tools/docs/map_changed_paths.py
 ```
 
 Generated files are `documentation/wiki.html`, `docs/okf/index.md`, and each `docs/okf/<solution-id>/wiki.html`. Keep generated content deterministic: no timestamps.
+
+`AGENTS.md` is created or patched with a marked `OKF-ROUTING` block. Preserve any existing instructions outside the markers. The block tells Codex to use `$okf-router` at the start of substantive repository work and `$okf-archivist` at the end of substantive changes.
 
 ## Bootstrap script
 
@@ -119,7 +122,7 @@ After bootstrap, run:
 python tools/docs/map_changed_paths.py <representative-owned-path>
 ```
 
-A shallow pass is complete only when the build/check pass, every solution has the required bundle files, representative owned paths map correctly, and ambiguous ownership is recorded rather than guessed away.
+A shallow pass is complete only when the build/check pass, every solution has the required bundle files, representative owned paths map correctly, `AGENTS.md` contains one `OKF-ROUTING` block, and ambiguous ownership is recorded rather than guessed away.
 
 ## Deep backfill boundary
 
