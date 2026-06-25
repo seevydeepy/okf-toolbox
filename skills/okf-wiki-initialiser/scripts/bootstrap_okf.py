@@ -20,6 +20,19 @@ class Solution:
     keywords: list[str]
 
 
+@dataclass(frozen=True)
+class OkfPaths:
+    docs_root: str
+    okf_root: str
+    manifest: str
+    index: str
+    umbrella: str
+
+
+DOC_ROOT_PREFERENCES = ("docs", "documentation", "doc", "wiki", "manual", "manuals")
+SIMILAR_DOC_TOKENS = ("doc", "wiki", "manual")
+
+
 def normalise_id(value: str) -> str:
     ident = re.sub(r"[^a-z0-9]+", "-", value.strip().lower()).strip("-")
     if not ident:
@@ -85,37 +98,80 @@ def write(path: Path, text: str, force: bool) -> None:
     path.write_text(dedent(text).strip() + "\n", encoding="utf-8", newline="\n")
 
 
+def rel_to_repo(repo: Path, path: Path) -> str:
+    return path.relative_to(repo).as_posix()
+
+
+def find_existing_manifest(repo: Path) -> Path | None:
+    for root in DOC_ROOT_PREFERENCES:
+        path = repo / root / "solutions.manifest.json"
+        if path.exists():
+            return path
+    for path in sorted(repo.glob("*/solutions.manifest.json")):
+        if any(token in path.parent.name.lower() for token in SIMILAR_DOC_TOKENS):
+            return path
+    return None
+
+
+def preferred_docs_root(repo: Path) -> str:
+    dirs = [path for path in repo.iterdir() if path.is_dir() and not path.name.startswith(".")]
+    for wanted in DOC_ROOT_PREFERENCES:
+        for path in dirs:
+            if path.name.lower() == wanted:
+                return path.name
+    similar = sorted(path.name for path in dirs if any(token in path.name.lower() for token in SIMILAR_DOC_TOKENS))
+    return similar[0] if similar else "docs"
+
+
+def choose_okf_paths(repo: Path) -> OkfPaths:
+    existing_manifest = find_existing_manifest(repo)
+    docs_root = rel_to_repo(repo, existing_manifest.parent) if existing_manifest else preferred_docs_root(repo)
+    docs_root = normalise_path(docs_root)
+    okf_root = f"{docs_root}/okf"
+    return OkfPaths(
+        docs_root=docs_root,
+        okf_root=okf_root,
+        manifest=f"{docs_root}/solutions.manifest.json",
+        index=f"{okf_root}/index.md",
+        umbrella=f"{docs_root}/wiki.html",
+    )
+
+
 AGENTS_START = "<!-- OKF-ROUTING:START -->"
 AGENTS_END = "<!-- OKF-ROUTING:END -->"
-AGENTS_BLOCK = dedent(f"""
+
+
+def agents_block(paths: OkfPaths) -> str:
+    return dedent(f"""
     {AGENTS_START}
     ## OKF Routing
 
-    At the start of substantive repository work, if `documentation/solutions.manifest.json` exists, use `$okf-router` to select the relevant OKF bundle before broad source inspection. If the skill is unavailable, manually inspect the manifest and read only the matched `docs/okf/<id>/routing_guidance.card`, then `solution.md` if needed.
+    At the start of substantive repository work, if `{paths.manifest}` exists, use `$okf-router` to select the relevant OKF bundle before broad source inspection. If the skill is unavailable, manually inspect the manifest and read only the matched `{paths.okf_root}/<id>/routing_guidance.card`, then `solution.md` if needed.
 
     At the end of substantive code, config, tooling, ownership, or routing changes, use `$okf-archivist` to check whether OKF docs need updating.
     {AGENTS_END}
 """).strip()
 
 
-def patch_agents(repo: Path) -> str:
+def patch_agents(repo: Path, paths: OkfPaths) -> str:
     path = repo / "AGENTS.md"
     original = path.read_text(encoding="utf-8") if path.exists() else ""
     pattern = re.compile(f"{re.escape(AGENTS_START)}.*?{re.escape(AGENTS_END)}", re.S)
+    block = agents_block(paths)
     if pattern.search(original):
-        updated = pattern.sub(AGENTS_BLOCK, original).rstrip() + "\n"
+        updated = pattern.sub(block, original).rstrip() + "\n"
     elif original.strip():
-        updated = original.rstrip() + "\n\n" + AGENTS_BLOCK + "\n"
+        updated = original.rstrip() + "\n\n" + block + "\n"
     else:
-        updated = AGENTS_BLOCK + "\n"
+        updated = block + "\n"
     if updated != original:
         path.write_text(updated, encoding="utf-8", newline="\n")
         return "updated"
     return "unchanged"
 
 
-def solution_docs(solution: Solution) -> dict[str, str]:
-    root = f"docs/okf/{solution.id}"
+def solution_docs(solution: Solution, okf_root: str) -> dict[str, str]:
+    root = f"{okf_root}/{solution.id}"
     return {
         "root": root,
         "routing_guidance_card": f"{root}/routing_guidance.card",
@@ -126,23 +182,23 @@ def solution_docs(solution: Solution) -> dict[str, str]:
     }
 
 
-def manifest(solutions: list[Solution]) -> dict:
+def manifest(solutions: list[Solution], paths: OkfPaths) -> dict:
     return {
         "okf_version": "1.0",
         "wiki": {
-            "root": "docs/okf",
-            "index": "docs/okf/index.md",
-            "umbrella": "documentation/wiki.html",
-            "generated_files": ["docs/okf/index.md", "documentation/wiki.html"],
+            "root": paths.okf_root,
+            "index": paths.index,
+            "umbrella": paths.umbrella,
+            "generated_files": [paths.index, paths.umbrella],
         },
         "routing": {
             "primary_doc": "routing_guidance.card",
             "bundle_docs": ["solution.md", "routing.md", "log.md"],
         },
         "excluded_paths": [
-            "docs/okf/",
-            "documentation/wiki.html",
-            "documentation/solutions.manifest.json",
+            f"{paths.okf_root}/",
+            paths.umbrella,
+            paths.manifest,
             "tools/docs/",
         ],
         "solutions": [
@@ -152,7 +208,7 @@ def manifest(solutions: list[Solution]) -> dict:
                 "summary": s.summary,
                 "owned_paths": s.owned_paths,
                 "routing_keywords": s.keywords,
-                "docs": solution_docs(s),
+                "docs": solution_docs(s, paths.okf_root),
             }
             for s in solutions
         ],
@@ -163,7 +219,7 @@ def bullet(items: list[str]) -> str:
     return "\n".join(f"- {item}" for item in items) or "- Unknown until deep backfill."
 
 
-def card(solution: Solution) -> str:
+def card(solution: Solution, docs: dict[str, str]) -> str:
     return f"""
     # {solution.name} Routing Card
 
@@ -171,8 +227,8 @@ def card(solution: Solution) -> str:
     owned_paths:
     {bullet(solution.owned_paths)}
     read_first:
-    - docs/okf/{solution.id}/routing_guidance.card
-    - docs/okf/{solution.id}/solution.md
+    - {docs["routing_guidance_card"]}
+    - {docs["solution"]}
     keywords:
     {bullet(solution.keywords)}
     handoffs:
@@ -207,7 +263,7 @@ def solution_md(solution: Solution) -> str:
     """
 
 
-def routing_md(solution: Solution) -> str:
+def routing_md(solution: Solution, docs: dict[str, str]) -> str:
     return f"""
     # {solution.name} Routing
 
@@ -218,8 +274,8 @@ def routing_md(solution: Solution) -> str:
 
     ## First Files To Inspect
 
-    - `docs/okf/{solution.id}/routing_guidance.card`
-    - `docs/okf/{solution.id}/solution.md`
+    - `{docs["routing_guidance_card"]}`
+    - `{docs["solution"]}`
 
     ## Owned Paths
 
@@ -269,6 +325,21 @@ def rel(repo: Path, value: str) -> Path:
 
 def read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
+
+
+DOC_ROOT_PREFERENCES = ("docs", "documentation", "doc", "wiki", "manual", "manuals")
+SIMILAR_DOC_TOKENS = ("doc", "wiki", "manual")
+
+
+def find_manifest(repo: Path) -> Path:
+    for root in DOC_ROOT_PREFERENCES:
+        path = repo / root / "solutions.manifest.json"
+        if path.exists():
+            return path
+    for path in sorted(repo.glob("*/solutions.manifest.json")):
+        if any(token in path.parent.name.lower() for token in SIMILAR_DOC_TOKENS):
+            return path
+    raise FileNotFoundError("could not find solutions.manifest.json in a docs/documentation-like folder")
 
 
 def markdown_to_html(text: str) -> str:
@@ -331,7 +402,7 @@ def expected_outputs(repo: Path, manifest: dict) -> dict[Path, str]:
         links.append(f"- [{solution['name']}]({docs['wiki']})")
     index_md = "# OKF Wiki Index\n\n" + "\n".join(links) + "\n"
     outputs[rel(repo, manifest["wiki"].get("index", "docs/okf/index.md"))] = index_md
-    outputs[rel(repo, manifest["wiki"].get("umbrella", "documentation/wiki.html"))] = page("OKF Wiki", markdown_to_html(index_md))
+    outputs[rel(repo, manifest["wiki"].get("umbrella", "docs/wiki.html"))] = page("OKF Wiki", markdown_to_html(index_md))
     return outputs
 
 
@@ -342,7 +413,7 @@ def main() -> int:
     parser.add_argument("--browser-smoke", action="store_true")
     args = parser.parse_args()
     repo = Path(args.repo).resolve()
-    manifest = json.loads(read(repo / "documentation" / "solutions.manifest.json"))
+    manifest = json.loads(read(find_manifest(repo)))
     outputs = expected_outputs(repo, manifest)
     stale: list[str] = []
     for path, content in outputs.items():
@@ -371,7 +442,7 @@ if __name__ == "__main__":
 
 MAP_CHANGED_PATHS = r'''
 #!/usr/bin/env python3
-"""Map changed paths to OKF solutions using documentation/solutions.manifest.json."""
+"""Map changed paths to OKF solutions using solutions.manifest.json."""
 
 from __future__ import annotations
 
@@ -391,6 +462,21 @@ def is_match(path: str, owned: str) -> bool:
     if owned.endswith("/"):
         return path.startswith(owned)
     return path == owned or path.startswith(owned + "/")
+
+
+DOC_ROOT_PREFERENCES = ("docs", "documentation", "doc", "wiki", "manual", "manuals")
+SIMILAR_DOC_TOKENS = ("doc", "wiki", "manual")
+
+
+def find_manifest(repo: Path) -> Path:
+    for root in DOC_ROOT_PREFERENCES:
+        path = repo / root / "solutions.manifest.json"
+        if path.exists():
+            return path
+    for path in sorted(repo.glob("*/solutions.manifest.json")):
+        if any(token in path.parent.name.lower() for token in SIMILAR_DOC_TOKENS):
+            return path
+    raise FileNotFoundError("could not find solutions.manifest.json in a docs/documentation-like folder")
 
 
 def git_paths(repo: Path) -> list[str]:
@@ -413,7 +499,7 @@ def main() -> int:
     parser.add_argument("--repo", default=".")
     args = parser.parse_args()
     repo = Path(args.repo).resolve()
-    manifest_path = repo / "documentation" / "solutions.manifest.json"
+    manifest_path = find_manifest(repo)
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     paths = [norm(p) for p in (args.paths or git_paths(repo))]
     excluded_prefixes = [norm(p) for p in manifest.get("excluded_paths", [])]
@@ -456,22 +542,25 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 
 def bootstrap(repo: Path, solutions: list[Solution], force: bool) -> None:
-    manifest_path = repo / "documentation" / "solutions.manifest.json"
-    if manifest_path.exists() and not force:
+    existing_manifest = find_existing_manifest(repo)
+    paths = choose_okf_paths(repo)
+    manifest_path = repo / paths.manifest
+    if existing_manifest and not force:
         raise FileExistsError("OKF manifest already exists; use --force only when intentionally replacing bootstrap files")
-    data = manifest(solutions)
+    data = manifest(solutions, paths)
     write(manifest_path, json.dumps(data, indent=2), True)
     for solution in solutions:
-        docs = solution_docs(solution)
-        write(repo / docs["routing_guidance_card"], card(solution), force)
+        docs = solution_docs(solution, paths.okf_root)
+        write(repo / docs["routing_guidance_card"], card(solution, docs), force)
         write(repo / docs["solution"], solution_md(solution), force)
-        write(repo / docs["routing"], routing_md(solution), force)
+        write(repo / docs["routing"], routing_md(solution, docs), force)
         write(repo / docs["log"], log_md(solution), force)
     write(repo / "tools/docs/build_okf_wikis.py", BUILD_OKF_WIKIS, True)
     write(repo / "tools/docs/map_changed_paths.py", MAP_CHANGED_PATHS, True)
     write(repo / "tools/docs/build_all_wikis.ps1", BUILD_ALL_WIKIS_PS1, True)
-    agents_status = patch_agents(repo)
+    agents_status = patch_agents(repo, paths)
     print(f"Bootstrapped OKF for {len(solutions)} solution(s).")
+    print(f"OKF docs root: {paths.docs_root}")
     print(f"AGENTS.md OKF routing block {agents_status}.")
     print("Run: .\\tools\\docs\\build_all_wikis.ps1")
     print("Run: .\\tools\\docs\\build_all_wikis.ps1 -Check")

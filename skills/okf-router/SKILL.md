@@ -1,6 +1,6 @@
 ---
 name: okf-router
-description: Use at the start of substantive repository work when the checkout has OKF infrastructure such as documentation/solutions.manifest.json or docs/okf/. Selects the relevant branch-local OKF solution bundle before broad source inspection by mapping mentioned or changed paths, reading only matched routing_guidance.card and solution.md first, and reporting unmapped or ambiguous routing instead of guessing.
+description: Use at the start of substantive repository work when the checkout has OKF infrastructure such as a solutions.manifest.json under docs/documentation-like folders or OKF bundles. Selects the relevant branch-local OKF solution bundle before broad source inspection by mapping mentioned or changed paths, reading only matched routing_guidance.card and solution.md first, and reporting unmapped or ambiguous routing instead of guessing.
 ---
 
 # OKF Router
@@ -11,16 +11,16 @@ Select the smallest useful OKF bundle before broad source inspection. This skill
 
 Skip and state why when:
 
-- The checkout has neither `documentation/solutions.manifest.json` nor `docs/okf/`.
+- The checkout has neither `solutions.manifest.json` under `docs/`, `documentation/`, `doc/`, `wiki/`, `manual(s)/`, or a similar documentation folder, nor OKF bundles.
 - The user asks only for a trivial command or isolated non-repository answer.
 - A repository-specific wrapper gives a narrower routing path.
 
-If `docs/okf/` exists without `documentation/solutions.manifest.json`, report that the branch is not fully bootstrapped and use explicit user paths or repo-local instructions only.
+If OKF bundles exist without a discoverable `solutions.manifest.json`, report that the branch is not fully bootstrapped and use explicit user paths or repo-local instructions only.
 
 ## Workflow
 
 1. Respect local `AGENTS.md`, `.codex/config.toml`, and repo memory first.
-2. Inspect `documentation/solutions.manifest.json`.
+2. Locate and inspect `solutions.manifest.json`. Prefer existing `docs/`, then `documentation/`, `doc/`, `wiki/`, `manual/`, `manuals/`, then similarly named documentation folders. Do not create a documentation folder during routing.
 3. Build candidate paths from the user prompt, `git diff --name-only`, `git diff --name-only --cached`, and `git ls-files --others --exclude-standard`. Do not scan the whole repo unless the user asks for a broad audit.
 4. When candidate paths exist and `tools/docs/map_changed_paths.py` exists, run:
 

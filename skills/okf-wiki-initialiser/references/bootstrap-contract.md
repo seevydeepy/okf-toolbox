@@ -2,26 +2,32 @@
 
 Use this contract when bootstrapping a repository that has no existing OKF examples. The bootstrap must leave enough structure for `okf-archivist` to maintain routing later.
 
+## Documentation root
+
+Reuse an existing root documentation folder before creating a new one. Prefer `docs/`, then `documentation/`, `doc/`, `wiki/`, `manual/`, `manuals/`, then similarly named folders containing `doc`, `wiki`, or `manual`. Create root `docs/` only when no similar folder exists.
+
+In this contract, `<docs-root>` means that chosen folder.
+
 ## Required files
 
 A conformant shallow bootstrap creates these files:
 
 ```text
-documentation/solutions.manifest.json
-documentation/wiki.html
+<docs-root>/solutions.manifest.json
+<docs-root>/wiki.html
 AGENTS.md
-docs/okf/index.md
-docs/okf/<solution-id>/routing_guidance.card
-docs/okf/<solution-id>/solution.md
-docs/okf/<solution-id>/routing.md
-docs/okf/<solution-id>/log.md
-docs/okf/<solution-id>/wiki.html
+<docs-root>/okf/index.md
+<docs-root>/okf/<solution-id>/routing_guidance.card
+<docs-root>/okf/<solution-id>/solution.md
+<docs-root>/okf/<solution-id>/routing.md
+<docs-root>/okf/<solution-id>/log.md
+<docs-root>/okf/<solution-id>/wiki.html
 tools/docs/build_all_wikis.ps1
 tools/docs/build_okf_wikis.py
 tools/docs/map_changed_paths.py
 ```
 
-Generated files are `documentation/wiki.html`, `docs/okf/index.md`, and each `docs/okf/<solution-id>/wiki.html`. Keep generated content deterministic: no timestamps.
+Generated files are `<docs-root>/wiki.html`, `<docs-root>/okf/index.md`, and each `<docs-root>/okf/<solution-id>/wiki.html`. Keep generated content deterministic: no timestamps.
 
 `AGENTS.md` is created or patched with a marked `OKF-ROUTING` block. Preserve any existing instructions outside the markers. The block tells Codex to use `$okf-router` at the start of substantive repository work and `$okf-archivist` at the end of substantive changes.
 
@@ -59,11 +65,11 @@ Use lower-case kebab-case ids. Put `/` on directory prefixes (`src/web/`), and e
 
 ## Manifest contract
 
-`documentation/solutions.manifest.json` must contain:
+`<docs-root>/solutions.manifest.json` must contain:
 
 - `okf_version`: string, currently `1.0`.
-- `wiki.root`: normally `docs/okf`.
-- `wiki.umbrella`: normally `documentation/wiki.html`.
+- `wiki.root`: normally `<docs-root>/okf`.
+- `wiki.umbrella`: normally `<docs-root>/wiki.html`.
 - `routing.primary_doc`: `routing_guidance.card`.
 - `routing.bundle_docs`: at least `solution.md`, `routing.md`, `log.md`.
 - `excluded_paths`: generated or OKF-maintenance paths the Archivist should ignore for ordinary code-change routing.
@@ -87,8 +93,8 @@ id: <id>
 owned_paths:
   - <path/>
 read_first:
-  - docs/okf/<id>/routing_guidance.card
-  - docs/okf/<id>/solution.md
+  - <docs-root>/okf/<id>/routing_guidance.card
+  - <docs-root>/okf/<id>/solution.md
 keywords:
   - <keyword>
 handoffs:
@@ -131,7 +137,7 @@ Do not run deep backfill during the default bootstrap. After the shallow pass, o
 Before accepting deep backfill:
 
 - Run a full tracked-file mapper pass, for example `$paths = git ls-files; python tools/docs/map_changed_paths.py @paths` in PowerShell; report and fix unexpected `unmapped` or `ambiguous` paths.
-- Verify every `routing_guidance.card` keeps `read_first` starting with `docs/okf/<id>/routing_guidance.card` and `docs/okf/<id>/solution.md`.
+- Verify every `routing_guidance.card` keeps `read_first` starting with its own `<docs-root>/okf/<id>/routing_guidance.card` and `<docs-root>/okf/<id>/solution.md`.
 - Keep broad source files out of `routing_guidance.card` unless they are the universal first owner file; put symptom-specific source routes in `routing.md`.
 - Rebuild/check the generated wiki readers, and inspect generated links when generator or Markdown shape changed.
 

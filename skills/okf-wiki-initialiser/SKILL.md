@@ -1,6 +1,6 @@
 ---
 name: okf-wiki-initialiser
-description: "Use when a repository does not yet have OKF wiki infrastructure, or when the user explicitly asks to bootstrap, initialise, repair, or backfill an OKF-conformant wiki. Creates a self-contained shallow branch-local OKF setup using the bundled bootstrap contract and script: documentation/solutions.manifest.json, docs/okf solution bundles, routing_guidance.card files, mapping/build tooling, and generated wiki readers; then, only when explicitly requested, orchestrates deeper per-solution/subsystem explorer agents to backfill routing and bundle detail."
+description: "Use when a repository does not yet have OKF wiki infrastructure, or when the user explicitly asks to bootstrap, initialise, repair, or backfill an OKF-conformant wiki. Creates a self-contained shallow branch-local OKF setup using the bundled bootstrap contract and script: a solutions.manifest.json under an existing docs/documentation-like folder when possible, OKF solution bundles, routing_guidance.card files, mapping/build tooling, and generated wiki readers; then, only when explicitly requested, orchestrates deeper per-solution/subsystem explorer agents to backfill routing and bundle detail."
 ---
 
 # OKF Wiki Initialiser
@@ -13,7 +13,7 @@ Before writing files, read `references/bootstrap-contract.md`. It defines the ma
 
 ## Gate
 
-- If `documentation/solutions.manifest.json` and `docs/okf/` already exist, do not reinitialise; repair only the missing or broken pieces the user asked about.
+- If a `solutions.manifest.json` already exists under `docs/`, `documentation/`, `doc/`, `wiki/`, `manual(s)/`, or a similar documentation folder and matching OKF bundles exist, do not reinitialise; repair only the missing or broken pieces the user asked about.
 - If ownership boundaries are too ambiguous to create useful routing, ask before writing the manifest.
 - Do not point at another branch/repo's docs as live truth. Use existing repos only for source-code understanding, not as required templates.
 
@@ -31,7 +31,7 @@ python <okf-toolbox>\skills\okf-wiki-initialiser\scripts\bootstrap_okf.py --repo
 
 Use repeated `--solution "id|Name|Summary|path1,path2|keyword1,keyword2"` only for very small repos.
 
-The script creates the full conformant infrastructure: manifest, per-solution bundles, `routing_guidance.card`, mapper, wiki builder, generated-reader pipeline, and a marked root `AGENTS.md` OKF routing block.
+The script reuses an existing documentation root such as `docs/`, `documentation/`, `doc/`, `wiki/`, or `manual(s)/`; only creates root `docs/` when no similar folder exists. It creates the full conformant infrastructure: manifest, per-solution bundles, `routing_guidance.card`, mapper, wiki builder, generated-reader pipeline, and a marked root `AGENTS.md` OKF routing block.
 
 6. Run the generated pipeline:
 

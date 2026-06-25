@@ -32,6 +32,38 @@ def run(args: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
     return subprocess.run(args, cwd=cwd, text=True, capture_output=True, check=True)
 
 
+def write_spec(repo: Path) -> Path:
+    spec = repo / "okf-bootstrap.json"
+    spec.write_text(json.dumps({
+        "solutions": [{
+            "id": "web",
+            "name": "Web",
+            "summary": "Demo web surface.",
+            "owned_paths": ["src/web/"],
+            "keywords": ["route", "page"],
+        }]
+    }), encoding="utf-8")
+    return spec
+
+
+def run_build_checks(repo: Path) -> None:
+    ps = shutil.which("powershell") or shutil.which("pwsh")
+    if ps:
+        run([ps, "-ExecutionPolicy", "Bypass", "-File", str(repo / "tools/docs/build_all_wikis.ps1")], repo)
+        run([ps, "-ExecutionPolicy", "Bypass", "-File", str(repo / "tools/docs/build_all_wikis.ps1"), "-Check"], repo)
+    else:
+        run([sys.executable, str(repo / "tools/docs/build_okf_wikis.py"), "--repo", str(repo)], repo)
+        run([sys.executable, str(repo / "tools/docs/build_okf_wikis.py"), "--repo", str(repo), "--check"], repo)
+
+
+def assert_manifest_root(repo: Path, root: str) -> None:
+    manifest = json.loads((repo / root / "solutions.manifest.json").read_text(encoding="utf-8"))
+    assert manifest["wiki"]["root"] == f"{root}/okf"
+    assert manifest["wiki"]["index"] == f"{root}/okf/index.md"
+    assert manifest["wiki"]["umbrella"] == f"{root}/wiki.html"
+    assert manifest["solutions"][0]["docs"]["routing_guidance_card"] == f"{root}/okf/web/routing_guidance.card"
+
+
 def main() -> int:
     bootstrap_module = load_bootstrap_module()
     with tempfile.TemporaryDirectory(prefix="okf-bootstrap-") as tmp:
@@ -39,39 +71,51 @@ def main() -> int:
         (repo / "src" / "web").mkdir(parents=True)
         (repo / "src" / "web" / "app.txt").write_text("demo\n", encoding="utf-8")
         (repo / "AGENTS.md").write_text("Use British English.\n", encoding="utf-8")
-        spec = repo / "okf-bootstrap.json"
-        spec.write_text(json.dumps({
-            "solutions": [{
-                "id": "web",
-                "name": "Web",
-                "summary": "Demo web surface.",
-                "owned_paths": ["src/web/"],
-                "keywords": ["route", "page"],
-            }]
-        }), encoding="utf-8")
+        spec = write_spec(repo)
         run([sys.executable, str(BOOTSTRAP), "--repo", str(repo), "--spec", str(spec)], repo)
-        ps = shutil.which("powershell") or shutil.which("pwsh")
-        if ps:
-            run([ps, "-ExecutionPolicy", "Bypass", "-File", str(repo / "tools/docs/build_all_wikis.ps1")], repo)
-            run([ps, "-ExecutionPolicy", "Bypass", "-File", str(repo / "tools/docs/build_all_wikis.ps1"), "-Check"], repo)
-        else:
-            run([sys.executable, str(repo / "tools/docs/build_okf_wikis.py"), "--repo", str(repo)], repo)
-            run([sys.executable, str(repo / "tools/docs/build_okf_wikis.py"), "--repo", str(repo), "--check"], repo)
+        run_build_checks(repo)
         mapped = run([sys.executable, str(repo / "tools/docs/map_changed_paths.py"), "--repo", str(repo), "src/web/app.txt"], repo)
         payload = json.loads(mapped.stdout)
         assert payload["matched"][0]["solution_id"] == "web"
-        assert (repo / "documentation/wiki.html").exists()
+        assert (repo / "docs/solutions.manifest.json").exists()
+        assert (repo / "docs/wiki.html").exists()
         assert (repo / "docs/okf/web/routing_guidance.card").exists()
+        assert not (repo / "documentation").exists()
+        assert_manifest_root(repo, "docs")
         agents = (repo / "AGENTS.md").read_text(encoding="utf-8")
         assert agents.startswith("Use British English.")
         assert agents.count("<!-- OKF-ROUTING:START -->") == 1
-        assert bootstrap_module.AGENTS_BLOCK in agents
+        assert bootstrap_module.agents_block(bootstrap_module.choose_okf_paths(repo)) in agents
         assert "$okf-router" in agents
         assert "$okf-archivist" in agents
         run([sys.executable, str(BOOTSTRAP), "--repo", str(repo), "--spec", str(spec), "--force"], repo)
         agents = (repo / "AGENTS.md").read_text(encoding="utf-8")
         assert agents.count("<!-- OKF-ROUTING:START -->") == 1
-        assert bootstrap_module.AGENTS_BLOCK in agents
+        assert bootstrap_module.agents_block(bootstrap_module.choose_okf_paths(repo)) in agents
+    with tempfile.TemporaryDirectory(prefix="okf-bootstrap-existing-docs-") as tmp:
+        repo = Path(tmp)
+        (repo / "documentation").mkdir()
+        (repo / "src" / "web").mkdir(parents=True)
+        (repo / "src" / "web" / "app.txt").write_text("demo\n", encoding="utf-8")
+        spec = write_spec(repo)
+        run([sys.executable, str(BOOTSTRAP), "--repo", str(repo), "--spec", str(spec)], repo)
+        run_build_checks(repo)
+        assert (repo / "documentation/solutions.manifest.json").exists()
+        assert (repo / "documentation/wiki.html").exists()
+        assert (repo / "documentation/okf/web/routing_guidance.card").exists()
+        assert not (repo / "docs").exists()
+        assert_manifest_root(repo, "documentation")
+    with tempfile.TemporaryDirectory(prefix="okf-bootstrap-root-precedence-") as tmp:
+        repo = Path(tmp)
+        (repo / "manual").mkdir()
+        (repo / "wiki").mkdir()
+        (repo / "src" / "web").mkdir(parents=True)
+        (repo / "src" / "web" / "app.txt").write_text("demo\n", encoding="utf-8")
+        spec = write_spec(repo)
+        run([sys.executable, str(BOOTSTRAP), "--repo", str(repo), "--spec", str(spec)], repo)
+        assert (repo / "wiki/solutions.manifest.json").exists()
+        assert not (repo / "manual/solutions.manifest.json").exists()
+        assert_manifest_root(repo, "wiki")
     print("OKF bootstrap self-check passed.")
     return 0
 
