@@ -1,0 +1,17 @@
+{
+  "name": "okf-toolbox",
+  "owner": {
+    "name": "Local developer"
+  },
+  "metadata": {
+    "description": "Local Cursor marketplace for the OKF wiki toolbox."
+  },
+  "plugins": [
+    {
+      "name": "okf-toolbox",
+      "version": "0.1.0",
+      "description": "Cursor skills and rules for branch-local OKF wiki routing, maintenance, and bootstrapping.",
+      "source": "./"
+    }
+  ]
+}
