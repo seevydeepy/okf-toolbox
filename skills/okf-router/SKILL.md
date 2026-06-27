@@ -19,7 +19,7 @@ If OKF bundles exist without a discoverable `solutions.manifest.json`, report th
 
 ## Workflow
 
-1. Respect local `AGENTS.md`, `.codex/config.toml`, and repo memory first.
+1. Respect local agent instructions (`AGENTS.md`, `.codex/config.toml`, `.cursor/rules/`) and repo memory first.
 2. Locate and inspect `solutions.manifest.json`. Prefer existing `docs/`, then `documentation/`, `doc/`, `wiki/`, `manual/`, `manuals/`, then similarly named documentation folders. Do not create a documentation folder during routing.
 3. Build candidate paths from the user prompt, `git diff --name-only`, `git diff --name-only --cached`, and `git ls-files --others --exclude-standard`. Do not scan the whole repo unless the user asks for a broad audit.
 4. When candidate paths exist and `tools/docs/map_changed_paths.py` exists, run:

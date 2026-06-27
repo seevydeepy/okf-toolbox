@@ -1,0 +1,25 @@
+{
+  "name": "okf-toolbox",
+  "displayName": "OKF Toolbox",
+  "version": "0.1.0",
+  "description": "Cursor skills and rules for branch-local OKF wiki routing, maintenance, and bootstrapping.",
+  "author": {
+    "name": "Local developer"
+  },
+  "publisher": "local",
+  "keywords": [
+    "okf",
+    "wiki",
+    "documentation",
+    "routing",
+    "bootstrap"
+  ],
+  "category": "developer-tools",
+  "tags": [
+    "documentation",
+    "cursor-skills",
+    "cursor-rules"
+  ],
+  "skills": "./skills/",
+  "rules": "./rules/"
+}

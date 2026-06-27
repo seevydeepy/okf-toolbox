@@ -19,7 +19,7 @@ Before writing files, read `references/bootstrap-contract.md`. It defines the ma
 
 ## Shallow Pass
 
-1. Respect local `AGENTS.md`, `.codex/config.toml`, and repo memory.
+1. Respect local agent instructions (`AGENTS.md`, `.codex/config.toml`, `.cursor/rules/`) and repo memory.
 2. Inspect `git status --short`, top-level layout, build files, project/package files, existing docs, and obvious runtime/application entrypoints.
 3. Choose logical solutions/subsystems from real boundaries: projects, apps, services, packages, routes, modules, or domain folders. Prefer fewer accurate bundles over many guessed bundles.
 4. Create a tiny bootstrap spec, usually in a temp file, with each solution's `id`, `name`, `summary`, `owned_paths`, and `keywords`.

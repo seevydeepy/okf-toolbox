@@ -19,7 +19,7 @@ Wrappers may narrow this gate to explicit solution-owned paths or broad applicat
 
 ## Workflow
 
-1. Respect local `AGENTS.md`, `.codex/config.toml`, and repo memory first.
+1. Respect local agent instructions (`AGENTS.md`, `.codex/config.toml`, `.cursor/rules/`) and repo memory first.
 2. Inspect current state: `git status --short`, `git diff --name-status`, `git diff --stat`, and relevant hunks, including staged and untracked files.
 3. Locate and load `solutions.manifest.json`, preferring existing `docs/`, then `documentation/`, `doc/`, `wiki/`, `manual/`, `manuals/`, then similarly named documentation folders. For known changed paths, run `python tools/docs/map_changed_paths.py` if present. For repos bootstrapped by `okf-wiki-initialiser`, the manifest/docs/tooling contract is in `skills/okf-wiki-initialiser/references/bootstrap-contract.md`.
 4. Read only the matched first-hop docs before broad prose: prefer each solution's `routing_guidance.card`, then `solution.md` only if ownership or impact is still unclear.

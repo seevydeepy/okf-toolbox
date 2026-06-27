@@ -1,0 +1,12 @@
+---
+description: Route repository work through branch-local OKF solution bundles before broad source inspection when OKF infrastructure exists.
+alwaysApply: true
+---
+
+# OKF Routing
+
+At the start of substantive repository work, if the checkout has OKF infrastructure (a `solutions.manifest.json` under a `docs/`, `documentation/`, `doc/`, `wiki/`, or `manual(s)/` folder), use `$okf-router` to select the relevant OKF bundle before broad source inspection.
+
+Read only the matched `routing_guidance.card`, then `solution.md` if ownership or first files are still unclear. Preserve any `unmapped` or `ambiguous` routing instead of guessing, and do not edit OKF docs while routing.
+
+Skip and say why when there is no discoverable `solutions.manifest.json` or OKF bundle, or when the request is a trivial one-off. End-of-change wiki maintenance is covered by `okf-archivist`.
