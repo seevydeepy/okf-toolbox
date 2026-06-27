@@ -2,14 +2,14 @@
   "name": "okf-toolbox",
   "displayName": "OKF Toolbox",
   "version": "0.1.0",
-  "description": "Cursor skills and rules for branch-local OKF wiki routing, maintenance, and bootstrapping.",
+  "description": "Cursor skills and rules for branch-local OKF route-card routing, maintenance, and bootstrapping.",
   "author": {
     "name": "Local developer"
   },
   "publisher": "local",
   "keywords": [
     "okf",
-    "wiki",
+    "route-pack",
     "documentation",
     "routing",
     "bootstrap"

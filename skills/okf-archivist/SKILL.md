@@ -1,11 +1,11 @@
 ---
 name: okf-archivist
-description: Use at the end of substantive turns in repositories with OKF wiki infrastructure, or for explicit OKF wiki/documentation maintenance. Maps changed paths through a discovered solutions.manifest.json under docs/documentation-like folders, decides whether branch-local OKF docs or routing cards need updates, checks for routing-health defects such as wrong subsystem or broad-doc detours, rebuilds generated wiki readers, validates the wiki pipeline, and reports touched or skipped solutions.
+description: Use at the end of substantive turns in repositories with OKF route-pack/wiki infrastructure, or for explicit OKF routing-card, wiki, or documentation maintenance. Maps changed paths through a discovered solutions.manifest.json under docs/documentation-like folders, decides whether branch-local OKF route cards or docs need updates, checks routing-health defects such as wrong subsystem, broad-doc detours, missing handoffs, or stale validation commands, runs route-card/wiki validation, and reports touched or skipped solutions.
 ---
 
 # OKF Archivist
 
-Keep branch-local OKF documentation aligned with the code that just changed. Prefer the smallest truthful doc/routing update; do not backfill broad prose during a routine archivist pass.
+Keep branch-local OKF route cards aligned with the code that just changed. Prefer the smallest truthful routing update; do not backfill broad prose during a routine archivist pass.
 
 ## Gate
 
@@ -23,7 +23,7 @@ Wrappers may narrow this gate to explicit solution-owned paths or broad applicat
 2. Inspect current state: `git status --short`, `git diff --name-status`, `git diff --stat`, and relevant hunks, including staged and untracked files.
 3. Locate and load `solutions.manifest.json`, preferring existing `docs/`, then `documentation/`, `doc/`, `wiki/`, `manual/`, `manuals/`, then similarly named documentation folders. For known changed paths, run `python tools/docs/map_changed_paths.py` if present. For repos bootstrapped by `okf-wiki-initialiser`, the manifest/docs/tooling contract is in `skills/okf-wiki-initialiser/references/bootstrap-contract.md`.
 4. Read only the matched first-hop docs before broad prose: prefer each solution's `routing_guidance.card`, then `solution.md` only if ownership or impact is still unclear.
-5. Decide doc impact. Update OKF docs when behaviour, ownership, entrypoints, public API/controller/service surface, domain model, persistence, cross-solution contracts, runtime/build wiring, or future file routing changed. Skip mechanical refactors, test-only edits, typo fixes, generated churn, and cleanup with no behaviour/routing change.
+5. Decide route-pack impact. Update OKF route cards/docs when behaviour, ownership, entrypoints, public API/controller/service surface, domain model, persistence, cross-solution contracts, runtime/build wiring, validation commands, or future file routing changed. Skip mechanical refactors, test-only edits, typo fixes, generated churn, and cleanup with no behaviour/routing change.
 6. Check routing health using evidence from the turn. Fix the smallest routing doc when there is a clear:
    - wrong subsystem route;
    - broad-doc detour before owner files;
@@ -31,6 +31,7 @@ Wrappers may narrow this gate to explicit solution-owned paths or broad applicat
    - large source files in `routing_guidance.card` that should live in symptom-specific `routing.md` routes;
    - missing symptom/search vocabulary;
    - cross-solution handoff;
+   - missing or stale validation commands;
    - unexpected mapper `unmapped` or `ambiguous` paths;
    - stale file, ownership, runtime, or build claim.
    Do not invent token/time/command-count targets during routine archivist work.
@@ -42,7 +43,7 @@ Wrappers may narrow this gate to explicit solution-owned paths or broad applicat
 .\tools\docs\build_all_wikis.ps1 -Check
 ```
 
-Use `-BrowserSmoke` when generator/template/reader JavaScript/browser behaviour changed. Run repo-required build/tests for implementation changes unless the repo wrapper explicitly narrows validation.
+Run `python tools/docs/check_okf_route_cards.py --repo .` when the repo has that checker and route cards changed; generated `build_all_wikis.ps1` may already run it. Use `-BrowserSmoke` when generator/template/reader JavaScript/browser behaviour changed. Run repo-required build/tests for implementation changes unless the repo wrapper explicitly narrows validation.
 
 ## Rules
 

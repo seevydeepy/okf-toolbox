@@ -102,7 +102,59 @@ def assert_manifest_root(repo: Path, root: str) -> None:
     assert manifest["wiki"]["root"] == f"{root}/okf"
     assert manifest["wiki"]["index"] == f"{root}/okf/index.md"
     assert manifest["wiki"]["umbrella"] == f"{root}/wiki.html"
+    assert manifest["routing"]["card_check"] == "tools/docs/check_okf_route_cards.py"
     assert manifest["solutions"][0]["docs"]["routing_guidance_card"] == f"{root}/okf/web/routing_guidance.card"
+
+
+def assert_route_card_contract(repo: Path, root: str) -> None:
+    card = (repo / root / "okf" / "web" / "routing_guidance.card").read_text(encoding="utf-8")
+    assert "validation:\n- python tools/docs/map_changed_paths.py <representative-owned-path>" in card
+    assert "stale_notes:\n- Review after ownership, entrypoint, handoff, or validation changes." in card
+    run([sys.executable, str(repo / "tools/docs/check_okf_route_cards.py"), "--repo", str(repo)], repo)
+
+
+def assert_route_card_checker_rejects_bad_card(repo: Path, root: str) -> None:
+    card = repo / root / "okf" / "web" / "routing_guidance.card"
+    original = card.read_text(encoding="utf-8")
+    bad = original.replace(
+        "validation:\n"
+        "- python tools/docs/map_changed_paths.py <representative-owned-path>\n"
+        "- .\\tools\\docs\\build_all_wikis.ps1 -Check\n",
+        "",
+        1,
+    )
+    card.write_text(bad, encoding="utf-8", newline="\n")
+    result = subprocess.run(
+        [sys.executable, str(repo / "tools/docs/check_okf_route_cards.py"), "--repo", str(repo)],
+        cwd=repo,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode != 0
+    assert "validation" in result.stdout
+    card.write_text(original, encoding="utf-8", newline="\n")
+
+
+def assert_missing_keywords_fail_fast() -> None:
+    with tempfile.TemporaryDirectory(prefix="okf-bootstrap-keywords-") as tmp:
+        repo = Path(tmp)
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(BOOTSTRAP),
+                "--repo",
+                str(repo),
+                "--solution",
+                "bad|Bad|Bad surface.|src/bad/|",
+            ],
+            cwd=repo,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        assert result.returncode != 0
+        assert "needs at least one keyword" in result.stderr
 
 
 def main() -> int:
@@ -124,6 +176,8 @@ def main() -> int:
         assert (repo / "docs/okf/web/routing_guidance.card").exists()
         assert not (repo / "documentation").exists()
         assert_manifest_root(repo, "docs")
+        assert_route_card_contract(repo, "docs")
+        assert_route_card_checker_rejects_bad_card(repo, "docs")
         agents = (repo / "AGENTS.md").read_text(encoding="utf-8")
         assert agents.startswith("Use British English.")
         assert agents.count("<!-- OKF-ROUTING:START -->") == 1
@@ -148,6 +202,7 @@ def main() -> int:
         assert (repo / "documentation/okf/web/routing_guidance.card").exists()
         assert not (repo / "docs").exists()
         assert_manifest_root(repo, "documentation")
+        assert_route_card_contract(repo, "documentation")
     with tempfile.TemporaryDirectory(prefix="okf-bootstrap-root-precedence-") as tmp:
         repo = Path(tmp)
         (repo / "manual").mkdir()
@@ -158,6 +213,7 @@ def main() -> int:
         assert (repo / "wiki/solutions.manifest.json").exists()
         assert not (repo / "manual/solutions.manifest.json").exists()
         assert_manifest_root(repo, "wiki")
+    assert_missing_keywords_fail_fast()
     print("OKF bootstrap self-check passed.")
     return 0
 

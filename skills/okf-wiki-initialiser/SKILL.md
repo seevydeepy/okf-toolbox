@@ -1,15 +1,15 @@
 ---
 name: okf-wiki-initialiser
-description: "Use when a repository does not yet have OKF wiki infrastructure, or when the user explicitly asks to bootstrap, initialise, repair, or backfill an OKF-conformant wiki. Creates a self-contained shallow branch-local OKF setup using the bundled bootstrap contract and script: a solutions.manifest.json under an existing docs/documentation-like folder when possible, OKF solution bundles, routing_guidance.card files, mapping/build tooling, and generated wiki readers; then, only when explicitly requested, orchestrates deeper per-solution/subsystem explorer agents to backfill routing and bundle detail."
+description: "Use when a repository does not yet have OKF route-pack/wiki infrastructure, or when the user explicitly asks to bootstrap, initialise, repair, or backfill an OKF-conformant routing setup. Creates a self-contained shallow branch-local OKF route pack using the bundled bootstrap contract and script: a solutions.manifest.json under an existing docs/documentation-like folder when possible, OKF solution bundles, routing_guidance.card files, route-card checks, mapping/build tooling, and generated wiki readers; then, only when explicitly requested, orchestrates deeper per-solution/subsystem explorer agents to backfill routing and bundle detail."
 ---
 
-# OKF Wiki Initialiser
+# OKF Route-Pack Initialiser
 
-Bootstrap OKF from zero. Do not rely on another repo having examples.
+Bootstrap OKF route packs from zero. Do not rely on another repo having examples.
 
 ## Required Reference
 
-Before writing files, read `references/bootstrap-contract.md`. It defines the manifest schema, required bundle files, generated reader contract, mapper output, and validation checklist.
+Before writing files, read `references/bootstrap-contract.md`. It defines the manifest schema, required bundle files, route-card contract, generated reader contract, mapper output, and validation checklist.
 
 ## Gate
 
@@ -31,13 +31,14 @@ python <okf-toolbox>\skills\okf-wiki-initialiser\scripts\bootstrap_okf.py --repo
 
 Use repeated `--solution "id|Name|Summary|path1,path2|keyword1,keyword2"` only for very small repos.
 
-The script reuses an existing documentation root such as `docs/`, `documentation/`, `doc/`, `wiki/`, or `manual(s)/`; only creates root `docs/` when no similar folder exists. It creates the full conformant infrastructure: manifest, per-solution bundles, `routing_guidance.card`, mapper, wiki builder, generated-reader pipeline, and a marked root `AGENTS.md` OKF routing block.
+The script reuses an existing documentation root such as `docs/`, `documentation/`, `doc/`, `wiki/`, or `manual(s)/`; only creates root `docs/` when no similar folder exists. It creates the full conformant infrastructure: manifest, per-solution bundles, `routing_guidance.card`, route-card checker, mapper, wiki builder, generated-reader pipeline, and a marked root `AGENTS.md` OKF routing block.
 
 6. Run the generated pipeline:
 
 ```powershell
 .\tools\docs\build_all_wikis.ps1
 .\tools\docs\build_all_wikis.ps1 -Check
+python tools/docs/check_okf_route_cards.py --repo .
 python tools/docs/map_changed_paths.py <representative-owned-path>
 ```
 
@@ -53,7 +54,7 @@ Run this only after a successful shallow pass and explicit user approval.
 2. Give each explorer only its solution bundle, manifest entry, owned paths, and read/write boundary.
 3. Ask each explorer to inspect source evidence and update only that solution's `solution.md`, `routing.md`, and `log.md`.
 4. Main agent reviews every diff, removes duplicated prose, fixes handoffs, then runs the backfill checks in `references/bootstrap-contract.md`.
-5. Keep each `routing_guidance.card` as a narrow first-hop card: `read_first` must start with its own card and `solution.md`. Put large source files in `routing.md` symptom routing unless they are always the first owner file.
+5. Keep each `routing_guidance.card` as a narrow first-hop card: `read_first` must start with its own card and `solution.md`, and the card must pass `check_okf_route_cards.py`. Put large source files in `routing.md` symptom routing unless they are always the first owner file.
 6. Use `okf-archivist` afterwards for routing-health review.
 
 ## Report
@@ -63,6 +64,6 @@ State solutions created, validation commands/results, mapper matched/excluded/un
 End with an explicit deep-backfill call to action. Do not merely say it was skipped. Say whether it is ready or blocked, why, and invite the user to approve the next pass, for example:
 
 ```text
-Next step available: the shallow OKF wiki is ready for deep backfill. Say "run the deep backfill" and I will launch per-solution explorers to fill entrypoints, handoffs, routing evidence, and logs.
+Next step available: the shallow OKF route pack is ready for deep backfill. Say "run the deep backfill" and I will launch per-solution explorers to fill entrypoints, handoffs, routing evidence, and logs.
 ```
 

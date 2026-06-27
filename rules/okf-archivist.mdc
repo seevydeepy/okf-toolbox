@@ -1,12 +1,12 @@
 ---
-description: Check whether branch-local OKF docs need updating at the end of substantive code, config, tooling, ownership, or routing changes.
+description: Check whether branch-local OKF route cards or docs need updating at the end of substantive code, config, tooling, ownership, or routing changes.
 alwaysApply: true
 ---
 
 # OKF Archivist
 
-At the end of any substantive turn that changed code, config, tooling, ownership, or routing in a checkout that has OKF infrastructure (a discoverable `solutions.manifest.json`), use `$okf-archivist` to decide whether OKF docs or routing cards need updating and to rebuild the generated wiki readers.
+At the end of any substantive turn that changed code, config, tooling, ownership, or routing in a checkout that has OKF route-pack infrastructure (a discoverable `solutions.manifest.json`), use `$okf-archivist` to decide whether OKF route cards or docs need updating and to rebuild/check the generated readers when needed.
 
-Prefer the smallest truthful doc/routing update; do not backfill broad prose during a routine archivist pass.
+Prefer the smallest truthful routing update; do not backfill broad prose during a routine archivist pass.
 
 Skip and say why when there is no discoverable `solutions.manifest.json`, when the turn made no relevant code/config/tooling change after generated wiki artefacts and OKF-only churn are excluded, or when only OKF docs changed and the generated readers were already rebuilt and checked.

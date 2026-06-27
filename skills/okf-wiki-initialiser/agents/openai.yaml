@@ -1,7 +1,7 @@
 interface:
-  display_name: "OKF Wiki Initialiser"
-  short_description: "Bootstrap OKF wiki infrastructure."
-  default_prompt: "Use $okf-wiki-initialiser to bootstrap OKF wiki docs for this repository."
+  display_name: "OKF Route Pack Initialiser"
+  short_description: "Bootstrap OKF route-pack infrastructure."
+  default_prompt: "Use $okf-wiki-initialiser to bootstrap OKF route-pack routing for this repository."
 
 policy:
   allow_implicit_invocation: true

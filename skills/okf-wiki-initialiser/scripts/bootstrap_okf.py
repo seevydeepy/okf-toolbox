@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bootstrap a minimal OKF wiki infrastructure in a repository."""
+"""Bootstrap a minimal OKF route-pack infrastructure in a repository."""
 
 from __future__ import annotations
 
@@ -87,6 +87,8 @@ def load_solutions(args: argparse.Namespace) -> list[Solution]:
             raise ValueError(f"duplicate solution id: {solution.id}")
         if not solution.owned_paths:
             raise ValueError(f"solution {solution.id} needs at least one owned_path")
+        if not solution.keywords:
+            raise ValueError(f"solution {solution.id} needs at least one keyword")
         seen.add(solution.id)
     return solutions
 
@@ -146,9 +148,9 @@ def agents_block(paths: OkfPaths) -> str:
     {AGENTS_START}
     ## OKF Routing
 
-    At the start of substantive repository work, if `{paths.manifest}` exists, use `$okf-router` to select the relevant OKF bundle before broad source inspection. If the skill is unavailable, manually inspect the manifest and read only the matched `{paths.okf_root}/<id>/routing_guidance.card`, then `solution.md` if needed.
+    At the start of substantive repository work, if `{paths.manifest}` exists, use `$okf-router` to select the relevant OKF route card before broad source inspection. If the skill is unavailable, manually inspect the manifest and read only the matched `{paths.okf_root}/<id>/routing_guidance.card`, then `solution.md` if needed.
 
-    At the end of substantive code, config, tooling, ownership, or routing changes, use `$okf-archivist` to check whether OKF docs need updating.
+    At the end of substantive code, config, tooling, ownership, or routing changes, use `$okf-archivist` to check whether OKF route cards or docs need updating.
     {AGENTS_END}
 """).strip()
 
@@ -194,6 +196,7 @@ def manifest(solutions: list[Solution], paths: OkfPaths) -> dict:
         "routing": {
             "primary_doc": "routing_guidance.card",
             "bundle_docs": ["solution.md", "routing.md", "log.md"],
+            "card_check": "tools/docs/check_okf_route_cards.py",
         },
         "excluded_paths": [
             f"{paths.okf_root}/",
@@ -220,20 +223,24 @@ def bullet(items: list[str]) -> str:
 
 
 def card(solution: Solution, docs: dict[str, str]) -> str:
-    return f"""
-    # {solution.name} Routing Card
+    return f"""# {solution.name} Routing Card
 
-    id: {solution.id}
-    owned_paths:
-    {bullet(solution.owned_paths)}
-    read_first:
-    - {docs["routing_guidance_card"]}
-    - {docs["solution"]}
-    keywords:
-    {bullet(solution.keywords)}
-    handoffs:
-    - Unknown until deep backfill.
-    """
+id: {solution.id}
+owned_paths:
+{bullet(solution.owned_paths)}
+read_first:
+- {docs["routing_guidance_card"]}
+- {docs["solution"]}
+keywords:
+{bullet(solution.keywords)}
+handoffs:
+- Unknown until deep backfill.
+validation:
+- python tools/docs/map_changed_paths.py <representative-owned-path>
+- .\\tools\\docs\\build_all_wikis.ps1 -Check
+stale_notes:
+- Review after ownership, entrypoint, handoff, or validation changes.
+"""
 
 
 def solution_md(solution: Solution) -> str:
@@ -311,6 +318,125 @@ def load_script_template(name: str) -> str:
 
 
 BUILD_OKF_WIKIS = load_script_template("build_okf_wikis_template.py")
+
+CHECK_ROUTE_CARDS = r'''
+#!/usr/bin/env python3
+"""Check OKF routing cards are usable as first-hop route-pack entries."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+from pathlib import Path
+
+
+DOC_ROOT_PREFERENCES = ("docs", "documentation", "doc", "wiki", "manual", "manuals")
+SIMILAR_DOC_TOKENS = ("doc", "wiki", "manual")
+SECTION_NAMES = ("owned_paths", "read_first", "keywords", "handoffs", "validation", "stale_notes")
+
+
+def norm(value: str) -> str:
+    return value.strip().replace("\\", "/").lstrip("./")
+
+
+def find_manifest(repo: Path) -> Path:
+    for root in DOC_ROOT_PREFERENCES:
+        path = repo / root / "solutions.manifest.json"
+        if path.exists():
+            return path
+    for path in sorted(repo.glob("*/solutions.manifest.json")):
+        if any(token in path.parent.name.lower() for token in SIMILAR_DOC_TOKENS):
+            return path
+    raise FileNotFoundError("could not find solutions.manifest.json in a docs/documentation-like folder")
+
+
+def scalar(text: str, key: str) -> str:
+    match = re.search(rf"^\s*{re.escape(key)}:\s*(.+?)\s*$", text, re.M)
+    return match.group(1).strip() if match else ""
+
+
+def section_values(lines: list[str], section: str) -> list[str]:
+    values: list[str] = []
+    collecting = False
+    section_header = f"{section}:"
+    for raw in lines:
+        line = raw.strip()
+        if line == section_header:
+            collecting = True
+            continue
+        if collecting and re.match(r"^[A-Za-z_][A-Za-z0-9_]*:\s*$", line):
+            break
+        if collecting and line.startswith("- "):
+            values.append(line[2:].strip())
+    return values
+
+
+def check_card(repo: Path, solution: dict, errors: list[str]) -> None:
+    docs = solution.get("docs") or {}
+    card_rel = norm(str(docs.get("routing_guidance_card") or ""))
+    solution_rel = norm(str(docs.get("solution") or ""))
+    if not card_rel:
+        errors.append(f"{solution.get('id', '<unknown>')}: missing docs.routing_guidance_card")
+        return
+    card_path = repo / card_rel
+    if not card_path.exists():
+        errors.append(f"{solution.get('id', '<unknown>')}: missing routing card {card_rel}")
+        return
+
+    text = card_path.read_text(encoding="utf-8")
+    lines = text.splitlines()
+    sid = str(solution.get("id") or "").strip()
+    if scalar(text, "id") != sid:
+        errors.append(f"{card_rel}: id does not match manifest solution id {sid}")
+
+    sections = {name: section_values(lines, name) for name in SECTION_NAMES}
+    for name, values in sections.items():
+        if not values:
+            errors.append(f"{card_rel}: missing non-empty {name} section")
+
+    owned = [norm(p) for p in solution.get("owned_paths", [])]
+    card_owned = [norm(p) for p in sections["owned_paths"]]
+    missing_owned = [p for p in owned if p not in card_owned]
+    if missing_owned:
+        errors.append(f"{card_rel}: owned_paths missing manifest paths {missing_owned}")
+
+    read_first = [norm(p) for p in sections["read_first"]]
+    expected_first = [card_rel, solution_rel]
+    if read_first[:2] != expected_first:
+        errors.append(f"{card_rel}: read_first must start with {expected_first}")
+
+    keywords = [str(k).strip() for k in solution.get("routing_keywords", []) if str(k).strip()]
+    card_keywords = sections["keywords"]
+    missing_keywords = [k for k in keywords if k not in card_keywords]
+    if not keywords:
+        errors.append(f"{card_rel}: manifest routing_keywords is empty")
+    elif missing_keywords:
+        errors.append(f"{card_rel}: keywords missing manifest terms {missing_keywords}")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Check OKF routing-card completeness.")
+    parser.add_argument("--repo", default=".")
+    args = parser.parse_args()
+    repo = Path(args.repo).resolve()
+    manifest_path = find_manifest(repo)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    errors: list[str] = []
+    for solution in manifest.get("solutions", []):
+        check_card(repo, solution, errors)
+    if errors:
+        print("OKF route-card check failed:")
+        for error in errors:
+            print(f"- {error}")
+        return 1
+    print("OKF route-card check passed.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+'''
 
 MAP_CHANGED_PATHS = r'''
 #!/usr/bin/env python3
@@ -404,7 +530,10 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $RepoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..\..')).Path
+$CardCheck = Join-Path $PSScriptRoot 'check_okf_route_cards.py'
 $Script = Join-Path $PSScriptRoot 'build_okf_wikis.py'
+& python $CardCheck --repo $RepoRoot
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 $Args = @($Script, '--repo', $RepoRoot)
 if ($Check) { $Args += '--check' }
 if ($BrowserSmoke) { $Args += '--browser-smoke' }
@@ -429,10 +558,11 @@ def bootstrap(repo: Path, solutions: list[Solution], force: bool) -> None:
         write(repo / docs["log"], log_md(solution), force)
     write(repo / "tools/docs/build_okf_wikis.py", BUILD_OKF_WIKIS, True)
     write(repo / "tools/docs/map_changed_paths.py", MAP_CHANGED_PATHS, True)
+    write(repo / "tools/docs/check_okf_route_cards.py", CHECK_ROUTE_CARDS, True)
     write(repo / "tools/docs/build_all_wikis.ps1", BUILD_ALL_WIKIS_PS1, True)
     agents_status = patch_agents(repo, paths)
-    print(f"Bootstrapped OKF for {len(solutions)} solution(s).")
-    print(f"OKF docs root: {paths.docs_root}")
+    print(f"Bootstrapped OKF route pack for {len(solutions)} solution(s).")
+    print(f"OKF route-pack docs root: {paths.docs_root}")
     print(f"AGENTS.md OKF routing block {agents_status}.")
     print("Run: .\\tools\\docs\\build_all_wikis.ps1")
     print("Run: .\\tools\\docs\\build_all_wikis.ps1 -Check")

@@ -1,11 +1,11 @@
 ---
 name: okf-router
-description: Use at the start of substantive repository work when the checkout has OKF infrastructure such as a solutions.manifest.json under docs/documentation-like folders or OKF bundles. Selects the relevant branch-local OKF solution bundle before broad source inspection by mapping mentioned or changed paths, reading only matched routing_guidance.card and solution.md first, and reporting unmapped or ambiguous routing instead of guessing.
+description: Use at the start of substantive repository work when the checkout has OKF route-pack infrastructure such as a solutions.manifest.json under docs/documentation-like folders or OKF bundles. Selects the relevant branch-local OKF route card before broad source inspection by mapping mentioned or changed paths, reading only matched routing_guidance.card and solution.md first, and reporting unmapped or ambiguous routing instead of guessing.
 ---
 
 # OKF Router
 
-Select the smallest useful OKF bundle before broad source inspection. This skill routes; it does not update documentation.
+Select the smallest useful OKF route card before broad source inspection. This skill routes; it does not update documentation.
 
 ## Gate
 
@@ -35,7 +35,7 @@ python tools/docs/map_changed_paths.py <candidate-paths>
 ## Rules
 
 - Treat OKF docs as branch-local truth. Do not point this repo at another branch or repository's OKF docs as live truth.
-- Prefer `routing_guidance.card` before broader prose.
+- Prefer `routing_guidance.card` before broader prose. Treat the card as the workflow primitive; the generated wiki is a human-readable view over the route pack.
 - Do not edit OKF docs during routing. Use `okf-archivist` later if the turn changes code, config, tooling, ownership, or routing.
 - If all matched paths are generated OKF/wiki files, report them as excluded and avoid routing into implementation bundles.
 

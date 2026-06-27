@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate deterministic, self-contained OKF wiki readers."""
+"""Generate deterministic, self-contained OKF route-pack readers."""
 
 from __future__ import annotations
 
@@ -164,7 +164,7 @@ def umbrella_docs(manifest: dict[str, Any], repo: Path) -> dict[str, str]:
         for path, text in bundle_docs.items():
             docs[f"solutions/{sid}/{path}"] = text
 
-    title = str((manifest.get("wiki") or {}).get("title") or "OKF Wiki")
+    title = str((manifest.get("wiki") or {}).get("title") or "OKF Route Pack")
     lines = [
         "---",
         'okf_version: "1.0"',
@@ -174,7 +174,7 @@ def umbrella_docs(manifest: dict[str, Any], repo: Path) -> dict[str, str]:
         "tags: [okf, umbrella]",
         "---",
         "",
-        "# OKF Wiki Index",
+        "# OKF Route Pack Index",
         "",
     ]
     for _sid, name, summary, target in sorted(entries, key=lambda item: item[1].lower()):
@@ -187,7 +187,7 @@ def umbrella_docs(manifest: dict[str, Any], repo: Path) -> dict[str, str]:
 def generated_index_md(manifest: dict[str, Any]) -> str:
     wiki = manifest.get("wiki") or {}
     index_path = norm_path(str(wiki.get("index") or f"{wiki.get('root', 'docs/okf')}/index.md"))
-    lines = ["# OKF Wiki Index", ""]
+    lines = ["# OKF Route Pack Index", ""]
     for solution in manifest.get("solutions", []):
         target = path_href(index_path, solution_wiki(solution))
         summary = solution_summary(solution)
@@ -201,7 +201,7 @@ def expected_outputs(repo: Path, manifest: dict[str, Any]) -> dict[Path, str]:
     for solution in manifest.get("solutions", []):
         docs = load_bundle_docs(repo, solution, with_virtual_index=True)
         html_text, _stats = generate_html(
-            bundle_name=f"{solution_name(solution)} OKF Wiki",
+            bundle_name=f"{solution_name(solution)} OKF Route Pack",
             docs_by_path=docs,
             manifest=manifest,
             current_solution=solution,
@@ -214,7 +214,7 @@ def expected_outputs(repo: Path, manifest: dict[str, Any]) -> dict[Path, str]:
     umbrella_path = norm_path(str(wiki.get("umbrella") or "docs/wiki.html"))
     outputs[rel(repo, index_path)] = generated_index_md(manifest)
     umbrella_html, _stats = generate_html(
-        bundle_name=str(wiki.get("title") or "OKF Wiki"),
+        bundle_name=str(wiki.get("title") or "OKF Route Pack"),
         docs_by_path=umbrella_docs(manifest, repo),
         manifest=manifest,
         current_solution=None,
@@ -977,7 +977,7 @@ input, select {
     <div class="controls">
       <label>
         <span class="meta">Search title, path, tags, summary, and routing</span>
-        <input id="search" type="search" placeholder="Search wiki..." autocomplete="off" />
+        <input id="search" type="search" placeholder="Search route pack..." autocomplete="off" />
       </label>
       <label>
         <span class="meta">Filter by OKF type</span>
@@ -1050,7 +1050,7 @@ input, select {
         <strong>${escapeHtml(doc.title)}</strong>
         <span>${escapeHtml(doc.path)} - ${escapeHtml(doc.type)}</span>
       </a>
-    `).join("") || `<p class="empty">No matching wiki pages.</p>`;
+    `).join("") || `<p class="empty">No matching route-pack pages.</p>`;
   }
 
   function linkPills(paths, emptyText) {
@@ -1122,7 +1122,7 @@ input, select {
         <h3>Links from this page</h3>
         ${linkPills(doc.outgoing, "No internal OKF links from this page.")}
         <h3>Cited by</h3>
-        ${linkPills(bundle.backlinks[doc.path] || [], "No other wiki page links here yet.")}
+        ${linkPills(bundle.backlinks[doc.path] || [], "No other route-pack page links here yet.")}
       </section>
     `;
     renderList();
@@ -1153,7 +1153,7 @@ input, select {
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Generate OKF wiki readers.")
+    parser = argparse.ArgumentParser(description="Generate OKF route-pack readers.")
     parser.add_argument("--repo", default=".")
     parser.add_argument("--manifest")
     parser.add_argument("--check", action="store_true")
@@ -1167,7 +1167,7 @@ def main() -> int:
     status = write_outputs(repo, outputs, check=args.check, browser_smoke=args.browser_smoke)
     if status:
         return status
-    print("OKF wiki build check passed." if args.check else "OKF wiki build complete.")
+    print("OKF route-pack build check passed." if args.check else "OKF route-pack build complete.")
     return 0
 
 

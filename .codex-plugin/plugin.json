@@ -1,24 +1,24 @@
 {
   "name": "okf-toolbox",
   "version": "0.1.0+codex.20260625003053",
-  "description": "Shared OKF wiki routing, maintenance, and bootstrap skills.",
+  "description": "Shared OKF route-card routing, maintenance, and bootstrap skills.",
   "author": {
     "name": "Local developer"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "OKF Toolbox",
-    "shortDescription": "Route, maintain, and bootstrap OKF wikis.",
-    "longDescription": "Shared Codex skills for branch-local OKF solution routing, wiki maintenance, and initial OKF wiki bootstrapping.",
+    "shortDescription": "Route, maintain, and bootstrap OKF route packs.",
+    "longDescription": "Shared Codex skills for branch-local OKF route-card routing, route-pack maintenance, and initial OKF bootstrapping.",
     "developerName": "Local developer",
     "category": "Productivity",
     "capabilities": [
       "Write"
     ],
     "defaultPrompt": [
-      "Route this repository task through OKF docs.",
-      "Check this change for OKF wiki impact.",
-      "Bootstrap OKF wiki infrastructure here."
+      "Route this repository task through OKF route cards.",
+      "Check this change for OKF route-pack impact.",
+      "Bootstrap OKF route-pack infrastructure here."
     ]
   }
 }

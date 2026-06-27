@@ -1,6 +1,6 @@
-# OKF Bootstrap Contract
+# OKF Route-Pack Bootstrap Contract
 
-Use this contract when bootstrapping a repository that has no existing OKF examples. The bootstrap must leave enough structure for `okf-archivist` to maintain routing later.
+Use this contract when bootstrapping a repository that has no existing OKF examples. The bootstrap must leave enough route-card structure for `okf-router` to start work without broad prose reads, and for `okf-archivist` to maintain routing later.
 
 ## Documentation root
 
@@ -25,11 +25,12 @@ AGENTS.md
 tools/docs/build_all_wikis.ps1
 tools/docs/build_okf_wikis.py
 tools/docs/map_changed_paths.py
+tools/docs/check_okf_route_cards.py
 ```
 
 Generated files are `<docs-root>/wiki.html`, `<docs-root>/okf/index.md`, and each `<docs-root>/okf/<solution-id>/wiki.html`. Keep generated content deterministic: no timestamps.
 
-Generated HTML readers are self-contained OKF browsers, not flat dumps. They must provide sidebar navigation, search, type filtering, working Markdown links, outgoing-link and backlink sections, and route metadata panels when frontmatter supplies routing fields. The umbrella wiki is built as a virtual bundle over all solution bundles, so cross-solution links can be browsed from one file.
+Generated HTML readers are self-contained route-pack browsers, not the source of truth. They must provide sidebar navigation, search, type filtering, working Markdown links, outgoing-link and backlink sections, and route metadata panels when frontmatter supplies routing fields. The umbrella reader is built as a virtual bundle over all solution bundles, so cross-solution links can be browsed from one file.
 
 `AGENTS.md` is created or patched with a marked `OKF-ROUTING` block. Preserve any existing instructions outside the markers. The block tells the agent to use `$okf-router` at the start of substantive repository work and `$okf-archivist` at the end of substantive changes.
 
@@ -74,6 +75,7 @@ Use lower-case kebab-case ids. Put `/` on directory prefixes (`src/web/`), and e
 - `wiki.umbrella`: normally `<docs-root>/wiki.html`.
 - `routing.primary_doc`: `routing_guidance.card`.
 - `routing.bundle_docs`: at least `solution.md`, `routing.md`, `log.md`.
+- `routing.card_check`: normally `tools/docs/check_okf_route_cards.py`.
 - `excluded_paths`: generated or OKF-maintenance paths the Archivist should ignore for ordinary code-change routing.
 - `solutions[]`: one entry per logical solution/subsystem.
 
@@ -101,6 +103,11 @@ keywords:
   - <keyword>
 handoffs:
   - Unknown until deep backfill.
+validation:
+  - python tools/docs/map_changed_paths.py <representative-owned-path>
+  - .\tools\docs\build_all_wikis.ps1 -Check
+stale_notes:
+  - Review after ownership, entrypoint, handoff, or validation changes.
 ```
 
 `solution.md` captures stable ownership: purpose, owned paths, entrypoints, neighbours, and maintenance notes.
@@ -120,6 +127,10 @@ handoffs:
 
 Archivist reports excluded, unmapped, and ambiguous paths instead of hiding them.
 
+## Card checker contract
+
+`python tools/docs/check_okf_route_cards.py --repo .` must fail when a routing card is not self-sufficient enough for first-hop routing. It checks that every manifest solution has a card, the card id matches the manifest id, `read_first` starts with the card and `solution.md`, manifest-owned paths and keywords are mirrored in the card, and these sections are non-empty: `owned_paths`, `read_first`, `keywords`, `handoffs`, `validation`, and `stale_notes`.
+
 ## Validation
 
 After bootstrap, run:
@@ -128,10 +139,11 @@ After bootstrap, run:
 .\tools\docs\build_all_wikis.ps1
 .\tools\docs\build_all_wikis.ps1 -Check
 .\tools\docs\build_all_wikis.ps1 -Check -BrowserSmoke
+python tools/docs/check_okf_route_cards.py --repo .
 python tools/docs/map_changed_paths.py <representative-owned-path>
 ```
 
-A shallow pass is complete only when the build/check pass, every solution has the required bundle files, representative owned paths map correctly, `AGENTS.md` contains one `OKF-ROUTING` block, and ambiguous ownership is recorded rather than guessed away.
+A shallow pass is complete only when the build/check pass, every solution has the required bundle files, every route card passes the card checker, representative owned paths map correctly, `AGENTS.md` contains one `OKF-ROUTING` block, and ambiguous ownership is recorded rather than guessed away.
 
 `-BrowserSmoke` must reject structurally invalid generated readers: missing OKF data payload, missing document navigation, missing article host, or no internal links. Markdown links in bundle docs must render as HTML anchors. Per-solution readers keep in-bundle links as `#doc/...` links and rewrite cross-solution authoring links of the form `../<solution-id>/<page>` to the peer solution `wiki.html`; the umbrella reader rewrites those links to `#doc/solutions/<solution-id>/<page>`.
 
@@ -143,7 +155,8 @@ Before accepting deep backfill:
 
 - Run a full tracked-file mapper pass, for example `$paths = git ls-files; python tools/docs/map_changed_paths.py @paths` in PowerShell; report and fix unexpected `unmapped` or `ambiguous` paths.
 - Verify every `routing_guidance.card` keeps `read_first` starting with its own `<docs-root>/okf/<id>/routing_guidance.card` and `<docs-root>/okf/<id>/solution.md`.
+- Verify every `routing_guidance.card` passes `python tools/docs/check_okf_route_cards.py --repo .`.
 - Keep broad source files out of `routing_guidance.card` unless they are the universal first owner file; put symptom-specific source routes in `routing.md`.
-- Rebuild/check the generated wiki readers, and inspect generated links when generator or Markdown shape changed.
+- Rebuild/check the generated readers, and inspect generated links when generator or Markdown shape changed.
 
 The final bootstrap report must offer the deep backfill as the next step. Do not frame it as merely "skipped"; state whether it is ready or blocked, and ask the user to approve it if they want the wiki filled beyond the shallow scaffold.

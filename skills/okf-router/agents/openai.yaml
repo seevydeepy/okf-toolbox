@@ -1,7 +1,7 @@
 interface:
   display_name: "OKF Router"
-  short_description: "Route repo work to OKF solution bundles."
-  default_prompt: "Use $okf-router to choose the relevant OKF bundle before working in this repository."
+  short_description: "Route repo work to OKF route cards."
+  default_prompt: "Use $okf-router to choose the relevant OKF route card before working in this repository."
 
 policy:
   allow_implicit_invocation: true
