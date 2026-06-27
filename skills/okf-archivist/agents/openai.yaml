@@ -1,7 +1,7 @@
 interface:
   display_name: "OKF Archivist"
-  short_description: "Maintain OKF route cards and docs."
-  default_prompt: "Use $okf-archivist to check whether this repository change needs OKF route-pack updates."
+  short_description: "Optimise OKF route cards and docs."
+  default_prompt: "Use $okf-archivist to optimise this repository's OKF route cards from the turn evidence."
 
 policy:
   allow_implicit_invocation: true
