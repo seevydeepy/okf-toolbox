@@ -1,6 +1,6 @@
 ---
 name: okf-archivist
-description: Use at the end of substantive turns in repositories with OKF route-pack/wiki infrastructure, or for explicit OKF routing-card, wiki, or documentation optimisation. Maps changed paths through a discovered solutions.manifest.json under docs/documentation-like folders, decides whether branch-local OKF route cards or docs need updates, improves future routing from real turn evidence and repo exploration, checks routing-health defects such as wrong subsystem, broad-doc detours, missing handoffs, missing keywords, or stale validation commands, runs route-card/wiki validation, and reports touched or skipped solutions.
+description: "Maintain OKF route-pack wiki material after substantive repository changes. Use at end of turns in repos with OKF infrastructure or when asked for routing-card, wiki, or documentation optimisation; map changed paths through manifests and update only relevant route-owned material."
 ---
 
 # OKF Archivist

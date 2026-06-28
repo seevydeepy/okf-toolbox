@@ -1,6 +1,6 @@
 ---
 name: okf-wiki-initialiser
-description: "Use when a repository does not yet have OKF route-pack/wiki infrastructure, or when the user explicitly asks to bootstrap, initialise, repair, or backfill an OKF-conformant routing setup. Creates a self-contained shallow branch-local OKF route pack using the bundled bootstrap contract and script: a solutions.manifest.json under an existing docs/documentation-like folder when possible, OKF solution bundles, routing_guidance.card files, route-card checks, mapping/build tooling, and generated wiki readers; then, only when explicitly requested, orchestrates deeper per-solution/subsystem explorer agents to backfill routing and bundle detail."
+description: "Bootstrap, repair, or backfill OKF route-pack and wiki infrastructure. Use when a repo lacks OKF routing, has broken route-pack metadata, or the user asks to initialise, optimise, repair, or backfill OKF-conformant documentation and routing cards."
 ---
 
 # OKF Route-Pack Initialiser

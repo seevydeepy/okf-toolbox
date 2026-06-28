@@ -1,6 +1,6 @@
 {
   "name": "okf-toolbox",
-  "version": "0.1.0+codex.20260625003053",
+  "version": "0.1.0+codex.20260628220325",
   "description": "Shared OKF route-card routing, maintenance, and bootstrap skills.",
   "author": {
     "name": "Local developer"

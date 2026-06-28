@@ -1,6 +1,6 @@
 ---
 name: okf-router
-description: Use at the start of substantive repository work when the checkout has OKF route-pack infrastructure such as a solutions.manifest.json under docs/documentation-like folders or OKF bundles. Selects the relevant branch-local OKF route card before broad source inspection by mapping mentioned or changed paths, reading only matched routing_guidance.card and solution.md first, and reporting unmapped or ambiguous routing instead of guessing.
+description: "Route repository work through OKF route cards before substantive changes. Use when a checkout has OKF route-pack infrastructure such as solutions.manifest.json, route cards, or documentation bundles; select the smallest relevant route evidence before planning or editing."
 ---
 
 # OKF Router
