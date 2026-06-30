@@ -12,7 +12,7 @@ Route cards (`routing_guidance.card`) are the workflow primitive. Generated `wik
 
 ## Install (Cursor)
 
-Point Cursor at this folder's marketplace manifest:
+For the Cursor app marketplace flow, point Cursor at this folder's marketplace manifest:
 
 `okf-toolbox/.cursor-plugin/marketplace.json`
 
@@ -25,7 +25,7 @@ Codex can load the same skills from `.codex-plugin/plugin.json` in this folder i
 - **Rules** (always on): `rules/okf-routing.mdc`, `rules/okf-archivist.mdc`
 - **Skills**: `okf-router`, `okf-archivist`, `okf-wiki-initialiser`
 
-Each skill allows implicit invocation so agents can engage routing and maintenance without a manual `@` mention when the rules apply.
+Cursor engagement is driven by the always-on rules. Codex also allows implicit invocation for the same skills through the bundled `agents/openai.yaml` metadata.
 
 ## What you do in a repository
 

@@ -9,7 +9,7 @@ Bootstrap OKF route packs from zero. Do not rely on another repo having examples
 
 ## Required Reference
 
-Before writing files, read `references/bootstrap-contract.md`. It defines the manifest schema, required bundle files, route-card contract, generated reader contract, mapper output, and validation checklist. For wiki HTML authoring limits, also read `references/renderer-limitations.md`.
+Before writing files, read `references/bootstrap-contract.md`. It defines the manifest schema, required bundle files, route-card contract, generated reader contract, mapper output, and validation checklist. Read `references/renderer-limitations.md` only when authoring complex Markdown, diagnosing generated reader output, or changing renderer/template behaviour.
 
 ## Gate
 
@@ -66,4 +66,3 @@ End with an explicit deep-backfill call to action. Do not merely say it was skip
 ```text
 Next step available: the shallow OKF route pack is ready for deep backfill. Say "run the deep backfill" and I will launch per-solution explorers to fill entrypoints, handoffs, routing evidence, and logs.
 ```
-
