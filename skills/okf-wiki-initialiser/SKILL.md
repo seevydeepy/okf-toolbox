@@ -17,6 +17,16 @@ Before writing files, read `references/bootstrap-contract.md`. It defines the ma
 - If ownership boundaries are too ambiguous to create useful routing, ask before writing the manifest.
 - Do not point at another branch/repo's docs as live truth. Use existing repos only for source-code understanding, not as required templates.
 
+## Repair Existing OKF
+
+Use this when a repo already has OKF files that drifted from `references/bootstrap-contract.md`.
+
+1. Find the existing documentation root, manifest, affected route cards, bundle docs, generated-reader scripts, mapper, checker, and `AGENTS.md` routing block.
+2. Run the repo's existing checks first: `build_all_wikis.ps1`, `build_all_wikis.ps1 -Check`, `build_all_wikis.ps1 -Check -BrowserSmoke`, `check_okf_route_cards.py`, and representative `map_changed_paths.py` cases when those files exist.
+3. Compare failures to `references/bootstrap-contract.md`; patch only missing or broken contract pieces.
+4. Do not rerun `bootstrap_okf.py --force` over an existing implementation unless intentionally replacing bootstrap files.
+5. Rerun the failed checks and use `okf-archivist` afterwards when routing ownership, cards, or bundle docs changed.
+
 ## Shallow Pass
 
 1. Respect local agent instructions (`AGENTS.md`, `.codex/config.toml`, `.cursor/rules/`) and repo memory.
