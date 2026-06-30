@@ -9,7 +9,7 @@ Bootstrap OKF route packs from zero. Do not rely on another repo having examples
 
 ## Required Reference
 
-Before writing files, read `references/bootstrap-contract.md`. It defines the manifest schema, required bundle files, route-card contract, generated reader contract, mapper output, and validation checklist.
+Before writing files, read `references/bootstrap-contract.md`. It defines the manifest schema, required bundle files, route-card contract, generated reader contract, mapper output, and validation checklist. For wiki HTML authoring limits, also read `references/renderer-limitations.md`.
 
 ## Gate
 

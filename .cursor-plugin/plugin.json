@@ -1,12 +1,11 @@
 {
   "name": "okf-toolbox",
   "displayName": "OKF Toolbox",
-  "version": "0.1.0",
-  "description": "Cursor skills and rules for branch-local OKF route-card routing, maintenance, and bootstrapping.",
+  "version": "0.2.0",
+  "description": "Bootstrap OKF route packs, route agents through route cards at turn start, and maintain route cards after code changes.",
   "author": {
-    "name": "Local developer"
+    "name": "Charles van der Pol"
   },
-  "publisher": "local",
   "keywords": [
     "okf",
     "route-pack",

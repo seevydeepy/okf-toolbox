@@ -1,16 +1,16 @@
 {
   "name": "okf-toolbox",
-  "version": "0.1.0+codex.20260628220325",
-  "description": "Shared OKF route-card routing, maintenance, and bootstrap skills.",
+  "version": "0.2.0+codex.20260630170000",
+  "description": "Bootstrap OKF route packs, route agents through route cards at turn start, and maintain route cards after code changes.",
   "author": {
-    "name": "Local developer"
+    "name": "Charles van der Pol"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "OKF Toolbox",
-    "shortDescription": "Route, maintain, and bootstrap OKF route packs.",
-    "longDescription": "Shared Codex skills for branch-local OKF route-card routing, route-pack maintenance, and initial OKF bootstrapping.",
-    "developerName": "Local developer",
+    "shortDescription": "Bootstrap, route, and maintain OKF route packs.",
+    "longDescription": "Bootstrap OKF route-pack infrastructure in any repository, route agents through route cards before broad source inspection, and maintain route cards after substantive code changes.",
+    "developerName": "Charles van der Pol",
     "category": "Productivity",
     "capabilities": [
       "Write"
