@@ -184,6 +184,8 @@ def main() -> int:
         assert bootstrap_module.agents_block(bootstrap_module.choose_okf_paths(repo)) in agents
         assert "$okf-router" in agents
         assert "$okf-archivist" in agents
+        assert "OKF routing is evidence for the next workflow step only." in agents
+        assert "does not declare requirements stable" in agents
         run([sys.executable, str(BOOTSTRAP), "--repo", str(repo), "--spec", str(spec), "--force"], repo)
         agents = (repo / "AGENTS.md").read_text(encoding="utf-8")
         assert agents.count("<!-- OKF-ROUTING:START -->") == 1
