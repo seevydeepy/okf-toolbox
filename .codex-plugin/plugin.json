@@ -1,7 +1,7 @@
 {
   "name": "okf-toolbox",
-  "version": "1.0.0",
-  "description": "Bootstrap OKF route packs, route agents through route cards at turn start, and maintain route cards after code changes.",
+  "version": "1.0.1",
+  "description": "Bootstrap OKF route packs, select route-card evidence at turn start, and maintain route cards after code changes.",
   "author": {
     "name": "Charles van der Pol"
   },
@@ -9,14 +9,14 @@
   "interface": {
     "displayName": "OKF Toolbox",
     "shortDescription": "Bootstrap, route, and maintain OKF route packs.",
-    "longDescription": "Bootstrap OKF route-pack infrastructure in any repository, route agents through route cards before broad source inspection, and maintain route cards after substantive code changes.",
+    "longDescription": "Bootstrap OKF route-pack infrastructure in any repository, select branch-local route-card evidence before broad source inspection, and maintain route cards after substantive code changes. OKF routing does not replace requirements elicitation, saved-plan approval, or implementation authorisation.",
     "developerName": "Charles van der Pol",
     "category": "Productivity",
     "capabilities": [
       "Write"
     ],
     "defaultPrompt": [
-      "Route this repository task through OKF route cards.",
+      "Select OKF route-card evidence for this repository task.",
       "Check this change for OKF route-pack impact.",
       "Bootstrap OKF route-pack infrastructure here."
     ]

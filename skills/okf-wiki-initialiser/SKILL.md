@@ -52,7 +52,7 @@ python tools/docs/check_okf_route_cards.py --repo .
 python tools/docs/map_changed_paths.py <representative-owned-path>
 ```
 
-Confirm `AGENTS.md` contains one `OKF-ROUTING` marker block that calls `$okf-router` at the start of substantive work and `$okf-archivist` at the end of substantive changes.
+Confirm `AGENTS.md` contains one `OKF-ROUTING` marker block that calls `$okf-router` at the start of substantive work for route evidence only, calls `$okf-archivist` at the end of substantive changes, and does not present routing as requirements stability, plan approval, implementation authorisation, or a bypass for active workflow/repository gates.
 
 7. Remove any temporary bootstrap spec unless the user wants it tracked.
 

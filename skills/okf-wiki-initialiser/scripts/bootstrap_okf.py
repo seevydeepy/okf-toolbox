@@ -148,7 +148,9 @@ def agents_block(paths: OkfPaths) -> str:
     {AGENTS_START}
     ## OKF Routing
 
-    At the start of substantive repository work, if `{paths.manifest}` exists, use `$okf-router` to select the relevant OKF route card before broad source inspection. If the skill is unavailable, manually inspect the manifest and read only the matched `{paths.okf_root}/<id>/routing_guidance.card`, then `solution.md` if needed.
+    At the start of substantive repository work, if `{paths.manifest}` exists, use `$okf-router` to select the relevant OKF route-card evidence before broad source inspection. If the skill is unavailable, manually inspect the manifest and read only the matched `{paths.okf_root}/<id>/routing_guidance.card`, then `solution.md` if needed.
+
+    OKF routing is evidence for the next workflow step only. It does not declare requirements stable, write or approve plans, create worktrees, start implementation, or bypass any active workflow or repository gate.
 
     At the end of substantive code, config, tooling, ownership, or routing changes, use `$okf-archivist` to check whether OKF route cards or docs need updating.
     {AGENTS_END}

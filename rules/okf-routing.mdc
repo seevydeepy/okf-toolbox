@@ -1,12 +1,14 @@
 ---
-description: Route repository work through branch-local OKF route cards before broad source inspection when OKF route-pack infrastructure exists.
+description: Select branch-local OKF route-card evidence before broad source inspection when OKF route-pack infrastructure exists.
 alwaysApply: true
 ---
 
 # OKF Routing
 
-At the start of substantive repository work, if the checkout has OKF route-pack infrastructure (a `solutions.manifest.json` under a `docs/`, `documentation/`, `doc/`, `wiki/`, or `manual(s)/` folder), use `$okf-router` to select the relevant OKF route card before broad source inspection.
+At the start of substantive repository work, if the checkout has OKF route-pack infrastructure (a `solutions.manifest.json` under a `docs/`, `documentation/`, `doc/`, `wiki/`, or `manual(s)/` folder), use `$okf-router` to select the relevant OKF route-card evidence before broad source inspection.
 
 Read only the matched `routing_guidance.card`, then `solution.md` if ownership or first files are still unclear. Preserve any `unmapped` or `ambiguous` routing instead of guessing, and do not edit OKF docs while routing.
+
+OKF routing is evidence for the next workflow step only. It does not declare requirements stable, write or approve plans, create worktrees, start implementation, or bypass Superpowers Lite, saved-plan approval, or repository-specific gates.
 
 Skip and say why when there is no discoverable `solutions.manifest.json` or OKF bundle, or when the request is a trivial one-off. End-of-change route-pack maintenance is covered by `okf-archivist`.

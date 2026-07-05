@@ -32,7 +32,7 @@ Generated files are `<docs-root>/wiki.html`, `<docs-root>/okf/index.md`, and eac
 
 Generated HTML readers are self-contained route-pack browsers, not the source of truth. They must provide sidebar navigation, search, type filtering, working Markdown links, outgoing-link and backlink sections, and route metadata panels when frontmatter supplies routing fields. The umbrella reader is built as a virtual bundle over all solution bundles, so cross-solution links can be browsed from one file. Markdown authoring limits for generated readers are documented in `renderer-limitations.md` in this references folder.
 
-`AGENTS.md` is created or patched with a marked `OKF-ROUTING` block. Preserve any existing instructions outside the markers. The block tells the agent to use `$okf-router` at the start of substantive repository work and `$okf-archivist` at the end of substantive changes.
+`AGENTS.md` is created or patched with a marked `OKF-ROUTING` block. Preserve any existing instructions outside the markers. The block tells the agent to use `$okf-router` at the start of substantive repository work for route evidence only and `$okf-archivist` at the end of substantive changes. It must not imply that OKF routing declares requirements stable, approves plans, authorises implementation, creates worktrees, or bypasses any active workflow/repository gate.
 
 ## Bootstrap script
 

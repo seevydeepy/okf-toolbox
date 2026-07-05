@@ -1,11 +1,11 @@
 # OKF Toolbox (Cursor Plugin)
 
-OKF Toolbox gives Cursor agents structured routing for repository work: bootstrap route packs, read the smallest relevant route card before editing, and keep route cards aligned with code after substantive changes.
+OKF Toolbox gives Cursor agents structured routing evidence for repository work: bootstrap route packs, read the smallest relevant route card before broad source inspection, and keep route cards aligned with code after substantive changes. Routing evidence does not replace requirements elicitation, saved-plan approval, implementation authorisation, or repository-specific gates.
 
 ## What it does
 
 1. **Bootstrap** — Initialise OKF route-pack infrastructure in a repository that lacks it (`$okf-wiki-initialiser`).
-2. **Route** — At the start of substantive work, select the relevant route card before broad source inspection (`$okf-router`, enforced by an always-on rule).
+2. **Route** — At the start of substantive work, select the relevant route-card evidence before broad source inspection (`$okf-router`, enforced by an always-on rule). This is not an implementation or planning approval.
 3. **Maintain** — At the end of substantive code/config/tooling changes, update route cards and rebuild generated readers when needed (`$okf-archivist`, enforced by an always-on rule).
 
 Route cards (`routing_guidance.card`) are the workflow primitive. Generated `wiki.html` readers are deterministic views over the route pack for humans; agents should route through cards and bundle markdown, not treat HTML as source of truth.
@@ -30,7 +30,7 @@ Cursor engagement is driven by the always-on rules. Codex also allows implicit i
 ## What you do in a repository
 
 1. **First time in a repo without OKF** — Ask the agent to bootstrap OKF (or invoke `$okf-wiki-initialiser`). The agent inspects repo layout, creates a manifest, route cards, and validation tooling, then runs the build/check pipeline.
-2. **Normal work** — Work as usual. When `docs/solutions.manifest.json` (or equivalent under `documentation/`, `wiki/`, etc.) exists, agents route at turn start and run the archivist pass at turn end when changes warrant it.
+2. **Normal work** — Work as usual. When `docs/solutions.manifest.json` (or equivalent under `documentation/`, `wiki/`, etc.) exists, agents gather route evidence at turn start and run the archivist pass at turn end when changes warrant it. Follow the active agent, planning, worktree, and approval gates separately.
 3. **Deep backfill** — Optional second pass to fill entrypoints, handoffs, and evidence-backed routing prose per solution; requires explicit approval after a successful shallow bootstrap.
 
 ## Prerequisites (bootstrapped repositories)
