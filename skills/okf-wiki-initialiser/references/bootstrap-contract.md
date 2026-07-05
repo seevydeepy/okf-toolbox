@@ -159,4 +159,4 @@ Before accepting deep backfill:
 - Keep broad source files out of `routing_guidance.card` unless they are the universal first owner file; put symptom-specific source routes in `routing.md`.
 - Rebuild/check the generated readers, and inspect generated links when generator or Markdown shape changed.
 
-The final bootstrap report must offer the deep backfill as the next step. Do not frame it as merely "skipped"; state whether it is ready or blocked, and ask the user to approve it if they want the wiki filled beyond the shallow scaffold.
+The final bootstrap report must offer the deep backfill as the next step. Do not frame it as merely "skipped"; state whether it is ready or blocked, and invite the user to approve a displayed saved plan for the next pass if they want the wiki filled beyond the shallow scaffold.
