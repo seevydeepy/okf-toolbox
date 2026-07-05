@@ -9,6 +9,6 @@ At the start of substantive repository work, if the checkout has OKF route-pack 
 
 Read only the matched `routing_guidance.card`, then `solution.md` if ownership or first files are still unclear. Preserve any `unmapped` or `ambiguous` routing instead of guessing, and do not edit OKF docs while routing.
 
-OKF routing is evidence for the next workflow step only. It does not declare requirements stable, write or approve plans, create worktrees, start implementation, or bypass Superpowers Lite, saved-plan approval, or repository-specific gates.
+OKF routing is evidence for the next workflow step only. It does not declare requirements stable, write or approve plans, create worktrees, start implementation, or bypass Superpowers Lite, active-mode implementation authority, tracked-doc approval, or repository-specific gates.
 
 Skip and say why when there is no discoverable `solutions.manifest.json` or OKF bundle, or when the request is a trivial one-off. End-of-change route-pack maintenance is covered by `okf-archivist`.

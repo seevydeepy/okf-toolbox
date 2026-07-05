@@ -1,7 +1,7 @@
 interface:
   display_name: "OKF Archivist"
   short_description: "Optimise OKF route cards and docs."
-  default_prompt: "Use $okf-archivist to optimise this repository's OKF route cards from the turn evidence only when tracked docs edits are covered by $executing-plans approval validation; otherwise report recommendations as evidence."
+  default_prompt: "Use $okf-archivist to optimise this repository's OKF route cards from the turn evidence only when tracked docs edits are covered by active-mode implementation/tracked-doc authority; otherwise report recommendations as evidence."
 
 policy:
   allow_implicit_invocation: true

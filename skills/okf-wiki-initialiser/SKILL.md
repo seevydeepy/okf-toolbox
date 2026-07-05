@@ -7,7 +7,7 @@ description: "Bootstrap, repair, or backfill OKF route-pack and wiki infrastruct
 
 Bootstrap OKF route packs from zero. Do not rely on another repo having examples.
 
-This skill may inspect, diagnose, and propose a bootstrap/repair/backfill plan before implementation approval. Do not write tracked repository files, create route packs, repair OKF docs, run backfill workers, create worktrees, commit, merge, or rebuild generated readers until `$executing-plans` has validated explicit approval of the currently displayed saved plan covering those changes.
+This skill may inspect, diagnose, and propose a bootstrap/repair/backfill plan before implementation authority. Do not write tracked repository files, create route packs, repair OKF docs, run backfill workers, create worktrees, commit, merge, or rebuild generated readers until active-mode implementation/tracked-doc authority covers those changes.
 
 ## Required Reference
 
@@ -18,7 +18,7 @@ Before writing files in an approved implementation phase, read `references/boots
 - If a `solutions.manifest.json` already exists under `docs/`, `documentation/`, `doc/`, `wiki/`, `manual(s)/`, or a similar documentation folder and matching OKF bundles exist, do not reinitialise; repair only the missing or broken pieces the user asked about.
 - If ownership boundaries are too ambiguous to create useful routing, ask before writing the manifest.
 - Do not point at another branch/repo's docs as live truth. Use existing repos only for source-code understanding, not as required templates.
-- Treat user requests to initialise, repair, optimise, or backfill as requirements evidence until the saved-plan approval gate is satisfied.
+- Treat user requests to initialise, repair, optimise, or backfill as requirements evidence until active-mode implementation/tracked-doc authority exists.
 
 ## Repair Existing OKF
 
@@ -26,7 +26,7 @@ Use this when a repo already has OKF files that drifted from `references/bootstr
 
 1. Find the existing documentation root, manifest, affected route cards, bundle docs, generated-reader scripts, mapper, checker, and `AGENTS.md` routing block.
 2. Run the repo's existing checks first: `build_all_wikis.ps1`, `build_all_wikis.ps1 -Check`, `build_all_wikis.ps1 -Check -BrowserSmoke`, `check_okf_route_cards.py`, and representative `map_changed_paths.py` cases when those files exist.
-3. Compare failures to `references/bootstrap-contract.md`; patch only missing or broken contract pieces after `$executing-plans` validates explicit approval of the currently displayed saved plan.
+3. Compare failures to `references/bootstrap-contract.md`; patch only missing or broken contract pieces after active-mode implementation/tracked-doc authority exists.
 4. Do not rerun `bootstrap_okf.py --force` over an existing implementation unless intentionally replacing bootstrap files.
 5. Rerun the failed checks and use `okf-archivist` afterwards when routing ownership, cards, or bundle docs changed.
 
@@ -61,11 +61,11 @@ Confirm `AGENTS.md` contains one `OKF-ROUTING` marker block that calls `$okf-rou
 
 ## Deep Backfill
 
-Run this only after a successful shallow pass and explicit saved-plan approval validated by `$executing-plans`.
+Run this only after a successful shallow pass and explicit active-mode authority for tracked docs backfill.
 
 1. Start one medium-or-higher explorer subagent per solution/subsystem, or small batches if the repo is large.
 2. Give each explorer only its solution bundle, manifest entry, owned paths, and read/write boundary.
-3. Ask each explorer to inspect source evidence and update only that solution's `solution.md`, `routing.md`, and `log.md` after the saved-plan approval gate is satisfied.
+3. Ask each explorer to inspect source evidence and update only that solution's `solution.md`, `routing.md`, and `log.md` after active-mode tracked-doc authority exists.
 4. Main agent reviews every diff, removes duplicated prose, fixes handoffs, then runs the backfill checks in `references/bootstrap-contract.md`.
 5. Keep each `routing_guidance.card` as a narrow first-hop card: `read_first` must start with its own card and `solution.md`, and the card must pass `check_okf_route_cards.py`. Put large source files in `routing.md` symptom routing unless they are always the first owner file.
 6. Use `okf-archivist` afterwards for routing-health review.
@@ -77,5 +77,5 @@ State solutions created, validation commands/results, mapper matched/excluded/un
 End with an explicit deep-backfill call to action. Do not merely say it was skipped. Say whether it is ready or blocked, why, and invite the user to approve the next pass, for example:
 
 ```text
-Next step available: the shallow OKF route pack is ready for deep backfill. Say "plan the deep backfill" and I will write and display the saved plan for explicit approval before any tracked docs edits or explorer backfill.
+Next step available: the shallow OKF route pack is ready for deep backfill. Say "plan the deep backfill" to use the planning workflow first, or explicitly ask me to backfill now if you want Default-mode implementation authority for the tracked docs edits.
 ```

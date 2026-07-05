@@ -36,7 +36,7 @@ python tools/docs/map_changed_paths.py <candidate-paths>
 
 - Treat OKF docs as branch-local truth. Do not point this repo at another branch or repository's OKF docs as live truth.
 - Prefer `routing_guidance.card` before broader prose. Treat the card as the workflow primitive; the generated wiki is a human-readable view over the route pack.
-- Treat OKF routing as evidence for the next workflow step only. It never replaces requirements elicitation, explicit saved-plan approval, implementation authorisation, worktree policy, validation policy, or any other active agent/repository instruction.
+- Treat OKF routing as evidence for the next workflow step only. It never replaces requirements elicitation, active-mode implementation authority, tracked-doc approval, worktree policy, validation policy, or any other active agent/repository instruction.
 - Do not edit OKF docs during routing. Use `okf-archivist` later if the turn changes code, config, tooling, ownership, or routing.
 - If all matched paths are generated OKF/wiki files, report them as excluded and avoid routing into implementation bundles.
 

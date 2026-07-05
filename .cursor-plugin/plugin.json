@@ -1,7 +1,7 @@
 {
   "name": "okf-toolbox",
   "displayName": "OKF Toolbox",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Bootstrap OKF route packs, select route-card evidence at turn start, and maintain route cards after code changes.",
   "author": {
     "name": "Charles van der Pol"

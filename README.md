@@ -1,6 +1,6 @@
 # OKF Toolbox (Cursor Plugin)
 
-OKF Toolbox gives Cursor agents structured routing evidence for repository work: bootstrap route packs, read the smallest relevant route card before broad source inspection, and keep route cards aligned with code after substantive changes. Routing evidence does not replace requirements elicitation, saved-plan approval, implementation authorisation, tracked-doc approval, or repository-specific gates.
+OKF Toolbox gives Cursor agents structured routing evidence for repository work: bootstrap route packs, read the smallest relevant route card before broad source inspection, and keep route cards aligned with code after substantive changes. Routing evidence does not replace requirements elicitation, active-mode implementation authority, tracked-doc approval, or repository-specific gates.
 
 ## What it does
 
@@ -29,9 +29,9 @@ Cursor engagement is driven by the always-on rules. Codex also allows implicit i
 
 ## What you do in a repository
 
-1. **First time in a repo without OKF** — Ask the agent to bootstrap OKF (or invoke `$okf-wiki-initialiser`). The agent inspects repo layout first; manifest, route-card, validation-tooling, and generated-reader writes require the active saved-plan approval gate.
+1. **First time in a repo without OKF** — Ask the agent to bootstrap OKF (or invoke `$okf-wiki-initialiser`). The agent inspects repo layout first; manifest, route-card, validation-tooling, and generated-reader writes require active-mode implementation/tracked-doc authority.
 2. **Normal work** — Work as usual. When `docs/solutions.manifest.json` (or equivalent under `documentation/`, `wiki/`, etc.) exists, agents gather route evidence at turn start and run the archivist pass at turn end when changes warrant it. Follow the active agent, planning, worktree, tracked-doc, and approval gates separately.
-3. **Deep backfill** — Optional second pass to fill entrypoints, handoffs, and evidence-backed routing prose per solution; requires explicit saved-plan approval after a successful shallow bootstrap.
+3. **Deep backfill** — Optional second pass to fill entrypoints, handoffs, and evidence-backed routing prose per solution; requires explicit active-mode authority after a successful shallow bootstrap.
 
 ## Prerequisites (bootstrapped repositories)
 

@@ -5,10 +5,10 @@ alwaysApply: true
 
 # OKF Archivist
 
-At the end of any substantive turn that changed code, config, tooling, ownership, or routing in a checkout that has OKF route-pack infrastructure (a discoverable `solutions.manifest.json`), use `$okf-archivist` to optimise OKF route cards from real turn evidence, decide whether docs need updating, and rebuild/check the generated readers when those tracked docs edits are covered by `$executing-plans` approval validation.
+At the end of any substantive turn that changed code, config, tooling, ownership, or routing in a checkout that has OKF route-pack infrastructure (a discoverable `solutions.manifest.json`), use `$okf-archivist` to optimise OKF route cards from real turn evidence, decide whether docs need updating, and rebuild/check the generated readers when those tracked docs edits are covered by active-mode implementation/tracked-doc authority.
 
 Prefer the smallest truthful routing improvement. Capture better owners, first files, search terms, handoffs, validation commands, and ambiguity found during the turn; do not backfill broad prose during a routine archivist pass.
 
-Archivist route evidence does not authorise tracked docs edits, worktrees, commits, merges, generated-reader rebuilds, or backfills before the saved-plan approval gate is satisfied.
+Archivist route evidence does not authorise tracked docs edits, worktrees, commits, merges, generated-reader rebuilds, or backfills before active-mode implementation/tracked-doc authority exists.
 
 Skip and say why when there is no discoverable `solutions.manifest.json`, when the turn made no relevant code/config/tooling change after generated wiki artefacts and OKF-only churn are excluded, or when only OKF docs changed and the generated readers were already rebuilt and checked.
