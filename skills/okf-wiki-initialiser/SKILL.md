@@ -1,6 +1,6 @@
 ---
 name: okf-wiki-initialiser
-description: "Bootstrap, repair, or backfill OKF route-pack and wiki infrastructure. Use when a repo lacks OKF routing, has broken route-pack metadata, or the user asks to initialise, optimise, repair, or backfill OKF-conformant documentation and routing cards."
+description: "Bootstrap, repair, or backfill OKF route-pack and wiki infrastructure. Use only when the user explicitly asks to initialise, repair, or backfill, or when expected OKF infrastructure is demonstrably broken; mere absence supports diagnosis or proposal only."
 ---
 
 # OKF Route-Pack Initialiser
@@ -15,6 +15,7 @@ Before writing files in an approved implementation phase, read `references/boots
 
 ## Gate
 
+- Mere absence of OKF files does not select bootstrap implementation. Diagnose and propose options only unless the user explicitly requests initialisation, repair, or backfill and active authority permits tracked-doc changes.
 - If a `solutions.manifest.json` already exists under `docs/`, `documentation/`, `doc/`, `wiki/`, `manual(s)/`, or a similar documentation folder and matching OKF bundles exist, do not reinitialise; repair only the missing or broken pieces the user asked about.
 - If ownership boundaries are too ambiguous to create useful routing, ask before writing the manifest.
 - Do not point at another branch/repo's docs as live truth. Use existing repos only for source-code understanding, not as required templates.
