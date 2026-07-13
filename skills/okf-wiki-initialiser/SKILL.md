@@ -64,9 +64,9 @@ Confirm `AGENTS.md` contains one `OKF-ROUTING` marker block that calls `$okf-rou
 
 Run this only after a successful shallow pass and explicit active-mode authority for tracked docs backfill.
 
-1. Start one medium-or-higher explorer subagent per solution/subsystem, or small batches if the repo is large.
-2. Give each explorer only its solution bundle, manifest entry, owned paths, and read/write boundary.
-3. Ask each explorer to inspect source evidence and update only that solution's `solution.md`, `routing.md`, and `log.md` after active-mode tracked-doc authority exists.
+1. When the active operation mode, delegation rubric, host capacity, and solution independence permit delegation, assign bounded explorers to independent solutions in a single safe wave or small batches. In solo mode, or when delegation is blocked or the solutions are tightly coupled, process them sequentially in the main agent.
+2. Give each delegated explorer only its solution bundle, manifest entry, owned paths, and read/write boundary.
+3. Ask each delegated explorer to inspect source evidence and update only that solution's `solution.md`, `routing.md`, and `log.md` after active-mode tracked-doc authority exists.
 4. Main agent reviews every diff, removes duplicated prose, fixes handoffs, then runs the backfill checks in `references/bootstrap-contract.md`.
 5. Keep each `routing_guidance.card` as a narrow first-hop card: `read_first` must start with its own card and `solution.md`, and the card must pass `check_okf_route_cards.py`. Put large source files in `routing.md` symptom routing unless they are always the first owner file.
 6. Use `okf-archivist` afterwards for routing-health review.
