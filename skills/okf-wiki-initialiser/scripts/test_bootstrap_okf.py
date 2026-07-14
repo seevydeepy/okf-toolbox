@@ -245,9 +245,30 @@ def assert_semantic_discovery(bootstrap_module) -> None:
         run_build_checks(repo)
 
 
+def assert_git_visibility_filter(bootstrap_module) -> None:
+    with tempfile.TemporaryDirectory(prefix="okf-discovery-git-visible-") as tmp:
+        repo = Path(tmp)
+        run(["git", "init"], repo)
+        (repo / ".gitignore").write_text("local-artifacts/\n", encoding="utf-8")
+        touch_descriptor(repo, "src/Payments.Api/Payments.Api.csproj")
+        touch_descriptor(repo, "local-artifacts/Ghost.Service/Ghost.Service.csproj")
+        touch_descriptor(repo, ".devcontainer/devcontainer.json")
+
+        visible_files = bootstrap_module.git_visible_files(repo)
+        assert visible_files is not None
+        assert not any("local-artifacts" in path.parts for path in visible_files)
+
+        payload = bootstrap_module.discover_solution_spec(repo)
+        assert {item["id"] for item in payload["solutions"]} == {"payments-api"}
+        assert payload["uncovered_roots"] == []
+        assert "local-artifacts/" not in payload["excluded_paths"]
+        assert ".devcontainer/" in payload["excluded_paths"]
+
+
 def main() -> int:
     bootstrap_module = load_bootstrap_module()
     assert_semantic_discovery(bootstrap_module)
+    assert_git_visibility_filter(bootstrap_module)
     with tempfile.TemporaryDirectory(prefix="okf-bootstrap-") as tmp:
         repo = Path(tmp)
         create_demo_sources(repo)
