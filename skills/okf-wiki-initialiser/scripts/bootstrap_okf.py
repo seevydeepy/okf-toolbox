@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 import re
+import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 from textwrap import dedent
@@ -189,13 +190,63 @@ def descriptor_label(path: Path) -> str:
     return path.parent.name if path.name.lower() in PROJECT_FILENAMES else path.stem
 
 
+def ignored_directory_index(relative: Path) -> int | None:
+    for index, part in enumerate(relative.parts[:-1]):
+        if part.startswith(".") or part.lower() in IGNORED_DISCOVERY_DIRS:
+            return index
+    return None
+
+
+def git_visible_files(repo: Path) -> list[Path] | None:
+    try:
+        root_result = subprocess.run(
+            ["git", "-C", str(repo), "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return None
+    if root_result.returncode != 0:
+        return None
+    if Path(root_result.stdout.strip()).resolve() != repo.resolve():
+        return None
+
+    files_result = subprocess.run(
+        ["git", "-C", str(repo), "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+        capture_output=True,
+        check=False,
+    )
+    if files_result.returncode != 0:
+        return None
+    files = {
+        repo / Path(os.fsdecode(raw_path))
+        for raw_path in files_result.stdout.split(b"\0")
+        if raw_path
+    }
+    return sorted(
+        (path for path in files if path.is_file()),
+        key=lambda path: path.relative_to(repo).as_posix().lower(),
+    )
+
+
 def is_test_path(repo: Path, path: Path) -> bool:
     relative = path.relative_to(repo)
     return any(TEST_TOKENS.intersection(name_tokens(part)) for part in relative.parts)
 
 
-def find_build_descriptors(repo: Path) -> dict[str, list[Path]]:
+def find_build_descriptors(repo: Path, visible_files: list[Path] | None = None) -> dict[str, list[Path]]:
     descriptors: dict[str, list[Path]] = {"solution": [], "project": []}
+    if visible_files is not None:
+        for path in visible_files:
+            relative = path.relative_to(repo)
+            if ignored_directory_index(relative) is not None:
+                continue
+            kind = descriptor_kind(path)
+            if kind:
+                descriptors[kind].append(path)
+        return descriptors
+
     for current, dirnames, filenames in os.walk(repo):
         dirnames[:] = sorted(
             name for name in dirnames
@@ -332,9 +383,12 @@ def candidate_basis(candidate: DiscoveryCandidate) -> tuple[str, str]:
     return "directory-fallback", "low"
 
 
-def top_level_directory_candidates(repo: Path) -> list[DiscoveryCandidate]:
+def top_level_directory_candidates(
+    repo: Path,
+    visible_files: list[Path] | None = None,
+) -> list[DiscoveryCandidate]:
     candidates: list[DiscoveryCandidate] = []
-    content_directories = source_content_directories(repo)
+    content_directories = source_content_directories(repo, visible_files)
     for path in sorted(repo.iterdir(), key=lambda item: item.name.lower()):
         if not path.is_dir() or path.name.startswith(".") or path.name.lower() in IGNORED_DISCOVERY_DIRS:
             continue
@@ -343,8 +397,19 @@ def top_level_directory_candidates(repo: Path) -> list[DiscoveryCandidate]:
     return candidates
 
 
-def source_content_directories(repo: Path) -> set[Path]:
+def source_content_directories(repo: Path, visible_files: list[Path] | None = None) -> set[Path]:
     directories: set[Path] = set()
+    if visible_files is not None:
+        for file_path in visible_files:
+            relative = file_path.relative_to(repo)
+            if ignored_directory_index(relative) is not None:
+                continue
+            path = file_path.parent
+            while path != repo and is_under(path, repo):
+                directories.add(path)
+                path = path.parent
+        return directories
+
     for current, dirnames, filenames in os.walk(repo):
         dirnames[:] = [
             name for name in dirnames
@@ -359,22 +424,35 @@ def source_content_directories(repo: Path) -> set[Path]:
     return directories
 
 
-def ignored_source_roots(repo: Path) -> list[Path]:
+def ignored_source_roots(repo: Path, visible_files: list[Path] | None = None) -> list[Path]:
+    if visible_files is not None:
+        roots: set[Path] = set()
+        for file_path in visible_files:
+            relative = file_path.relative_to(repo)
+            index = ignored_directory_index(relative)
+            if index is not None:
+                roots.add(repo.joinpath(*relative.parts[:index + 1]))
+        return sorted(roots, key=lambda path: path.relative_to(repo).as_posix().lower())
+
     roots: list[Path] = []
     for current, dirnames, _ in os.walk(repo):
         current_path = Path(current)
-        ignored = [name for name in dirnames if name.lower() in IGNORED_DISCOVERY_DIRS]
+        ignored = [
+            name for name in dirnames
+            if name.startswith(".") or name.lower() in IGNORED_DISCOVERY_DIRS
+        ]
         roots.extend(current_path / name for name in ignored)
-        dirnames[:] = [name for name in dirnames if name.lower() not in IGNORED_DISCOVERY_DIRS]
+        dirnames[:] = [name for name in dirnames if name not in ignored]
     return roots
 
 
 def directory_fallbacks(
     repo: Path,
     candidates: list[DiscoveryCandidate],
+    visible_files: list[Path] | None = None,
 ) -> tuple[list[DiscoveryCandidate], list[Path]]:
     candidate_roots = [candidate.root for candidate in candidates if candidate.root]
-    content_directories = source_content_directories(repo)
+    content_directories = source_content_directories(repo, visible_files)
     fallbacks: list[DiscoveryCandidate] = []
     support_roots: list[Path] = []
 
@@ -452,7 +530,8 @@ def attach_test_descriptors(repo: Path, candidates: list[DiscoveryCandidate], te
 
 
 def discover_solution_spec(repo: Path) -> dict:
-    descriptors = find_build_descriptors(repo)
+    visible_files = git_visible_files(repo)
+    descriptors = find_build_descriptors(repo, visible_files)
     all_solutions = descriptors["solution"]
     production_solutions = [path for path in all_solutions if not is_test_path(repo, path)]
     candidates = group_descriptors(repo, production_solutions, "solution")
@@ -467,9 +546,9 @@ def discover_solution_spec(repo: Path) -> dict:
     project_candidates = group_descriptors(repo, production_projects, "project")
     candidates.extend(project_candidates)
     if not candidates:
-        candidates = top_level_directory_candidates(repo)
+        candidates = top_level_directory_candidates(repo, visible_files)
 
-    uncovered_fallbacks, support_roots = directory_fallbacks(repo, candidates)
+    uncovered_fallbacks, support_roots = directory_fallbacks(repo, candidates, visible_files)
 
     candidates = merge_nested_candidates(candidates)
     test_descriptors = [path for path in all_solutions + all_projects if is_test_path(repo, path)]
@@ -483,7 +562,7 @@ def discover_solution_spec(repo: Path) -> dict:
         if not any(is_under(path, root) for root in owned_directory_roots)
     ]
     ignored_roots = [
-        path for path in ignored_source_roots(repo)
+        path for path in ignored_source_roots(repo, visible_files)
         if path.name != ".git"
         and path.name.lower() not in DOC_ROOT_PREFERENCES
         and not any(is_under(path, root) for root in owned_directory_roots)
