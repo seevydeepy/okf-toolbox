@@ -157,8 +157,97 @@ def assert_missing_keywords_fail_fast() -> None:
         assert "needs at least one keyword" in result.stderr
 
 
+def touch_descriptor(repo: Path, relative: str) -> None:
+    path = repo / relative
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n", encoding="utf-8")
+
+
+def assert_semantic_discovery(bootstrap_module) -> None:
+    assert bootstrap_module.normalise_path(".agents/") == ".agents/"
+    with tempfile.TemporaryDirectory(prefix="okf-discovery-products-") as tmp:
+        repo = Path(tmp)
+        for relative in [
+            "vp/AlertingService/AlertingService.sln",
+            "vp/BIService/BIService.sln",
+            "vp/DIDService/DIDService.slnx",
+            "vp/ServiceManager/ServiceManager.Gateway/ServiceManager.Gateway.sln",
+            "vp/ServiceManager/ServiceManager.Testing/ServiceManager.Tests.slnx",
+            "Web/Designer/Digitalk.Web.Designer/Digitalk.Web.Designer.sln",
+            "Web/Common/Digitalk.Carrier.Data/Digitalk.Carrier.Data.csproj",
+            "Web/Common/Digitalk.Carrier.Data.Tests/Digitalk.Carrier.Data.Tests.csproj",
+            "vp/PolicyEngine/policy.py",
+            "vendor/Libraries/readme.txt",
+        ]:
+            touch_descriptor(repo, relative)
+
+        payload = bootstrap_module.discover_solution_spec(repo)
+        solutions = {item["id"]: item for item in payload["solutions"]}
+        assert {"alerting-service", "bi-service", "did-service", "service-manager", "designer"}.issubset(solutions)
+        assert "vp/PolicyEngine/" in payload["uncovered_roots"]
+        assert solutions["service-manager"]["owned_paths"] == ["vp/ServiceManager/"]
+        assert solutions["service-manager"]["discovery"]["basis"] == "semantic-family"
+        assert solutions["digitalk-carrier-data"]["discovery"]["basis"] == "project-fallback"
+        assert not any("test" in item["id"] for item in payload["solutions"])
+        assert solutions["digitalk-carrier-data"]["owned_paths"] == [
+            "Web/Common/Digitalk.Carrier.Data/",
+            "Web/Common/Digitalk.Carrier.Data.Tests/",
+        ]
+        assert "Web/Common/Digitalk.Carrier.Data.Tests/" not in payload["excluded_paths"]
+        assert "vendor/" not in {item["owned_paths"][0] for item in payload["solutions"]}
+        assert "vendor/" in payload["excluded_paths"]
+        assert payload["review_required"] is True
+        assert payload["fallback_order"] == ["semantic-family", "solution", "project", "top-level-directory"]
+
+        result = run([sys.executable, str(BOOTSTRAP), "--repo", str(repo), "--discover-only"], repo)
+        assert json.loads(result.stdout)["solutions"] == payload["solutions"]
+        assert not (repo / "docs").exists()
+        assert not (repo / "AGENTS.md").exists()
+        direct = subprocess.run(
+            [sys.executable, str(BOOTSTRAP), "--repo", str(repo), "--discover"],
+            cwd=repo,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        assert direct.returncode != 0
+        assert "requiring semantic review" in direct.stderr
+
+    with tempfile.TemporaryDirectory(prefix="okf-discovery-direct-") as tmp:
+        repo = Path(tmp)
+        touch_descriptor(repo, "src/Inventory.Worker/Inventory.Worker.csproj")
+        touch_descriptor(repo, "src/Payments.Api/Payments.Api.csproj")
+        touch_descriptor(repo, "src/Payments.Api.Tests/Payments.Api.Tests.csproj")
+        touch_descriptor(repo, ".agents/local.txt")
+        run([sys.executable, str(BOOTSTRAP), "--repo", str(repo), "--discover"], repo)
+        manifest = json.loads((repo / "docs/solutions.manifest.json").read_text(encoding="utf-8"))
+        assert {item["id"] for item in manifest["solutions"]} == {"inventory-worker", "payments-api"}
+        assert all("discovery" not in item for item in manifest["solutions"])
+        payments = next(item for item in manifest["solutions"] if item["id"] == "payments-api")
+        assert payments["owned_paths"] == ["src/Payments.Api/", "src/Payments.Api.Tests/"]
+        assert "src/Payments.Api.Tests/" not in manifest["excluded_paths"]
+        mapped = json.loads(run([
+            sys.executable,
+            str(repo / "tools/docs/map_changed_paths.py"),
+            "--repo",
+            str(repo),
+            "src/Inventory.Worker/Inventory.Worker.csproj",
+            "src/Payments.Api.Tests/Payments.Api.Tests.csproj",
+            ".agents/local.txt",
+        ], repo).stdout)
+        assert {item["path"]: item["solution_id"] for item in mapped["matched"]} == {
+            "src/Inventory.Worker/Inventory.Worker.csproj": "inventory-worker",
+            "src/Payments.Api.Tests/Payments.Api.Tests.csproj": "payments-api",
+        }
+        assert mapped["excluded"] == [".agents/local.txt"]
+        assert not mapped["unmapped"]
+        assert not mapped["ambiguous"]
+        run_build_checks(repo)
+
+
 def main() -> int:
     bootstrap_module = load_bootstrap_module()
+    assert_semantic_discovery(bootstrap_module)
     with tempfile.TemporaryDirectory(prefix="okf-bootstrap-") as tmp:
         repo = Path(tmp)
         create_demo_sources(repo)
