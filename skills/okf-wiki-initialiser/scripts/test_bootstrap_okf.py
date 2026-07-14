@@ -168,32 +168,40 @@ def assert_semantic_discovery(bootstrap_module) -> None:
     with tempfile.TemporaryDirectory(prefix="okf-discovery-products-") as tmp:
         repo = Path(tmp)
         for relative in [
-            "vp/AlertingService/AlertingService.sln",
-            "vp/BIService/BIService.sln",
-            "vp/DIDService/DIDService.slnx",
-            "vp/ServiceManager/ServiceManager.Gateway/ServiceManager.Gateway.sln",
-            "vp/ServiceManager/ServiceManager.Testing/ServiceManager.Tests.slnx",
-            "Web/Designer/Digitalk.Web.Designer/Digitalk.Web.Designer.sln",
-            "Web/Common/Digitalk.Carrier.Data/Digitalk.Carrier.Data.csproj",
-            "Web/Common/Digitalk.Carrier.Data.Tests/Digitalk.Carrier.Data.Tests.csproj",
-            "vp/PolicyEngine/policy.py",
+            "products/Notifications/Notifications.sln",
+            "products/Insights/Insights.sln",
+            "products/Identity/Identity.slnx",
+            "products/Operations/Operations.Gateway/Operations.Gateway.sln",
+            "products/Operations/Operations.Testing/Operations.Tests.slnx",
+            "applications/CustomerPortal/CustomerPortal.sln",
+            "libraries/Customer.Data/Customer.Data.csproj",
+            "libraries/Customer.Data.Tests/Customer.Data.Tests.csproj",
+            "products/RuleEngine/policy.py",
             "vendor/Libraries/readme.txt",
         ]:
             touch_descriptor(repo, relative)
 
         payload = bootstrap_module.discover_solution_spec(repo)
         solutions = {item["id"]: item for item in payload["solutions"]}
-        assert {"alerting-service", "bi-service", "did-service", "service-manager", "designer"}.issubset(solutions)
-        assert "vp/PolicyEngine/" in payload["uncovered_roots"]
-        assert solutions["service-manager"]["owned_paths"] == ["vp/ServiceManager/"]
-        assert solutions["service-manager"]["discovery"]["basis"] == "semantic-family"
-        assert solutions["digitalk-carrier-data"]["discovery"]["basis"] == "project-fallback"
+        assert set(solutions) == {
+            "customer-data",
+            "customer-portal",
+            "identity",
+            "insights",
+            "notifications",
+            "operations",
+        }
+        assert "products/RuleEngine/" in payload["uncovered_roots"]
+        assert solutions["operations"]["owned_paths"] == ["products/Operations/"]
+        assert solutions["operations"]["discovery"]["basis"] == "semantic-family"
+        assert solutions["customer-data"]["discovery"]["basis"] == "project-fallback"
+        assert not any(item["owned_paths"] == ["products/"] for item in payload["solutions"])
         assert not any("test" in item["id"] for item in payload["solutions"])
-        assert solutions["digitalk-carrier-data"]["owned_paths"] == [
-            "Web/Common/Digitalk.Carrier.Data/",
-            "Web/Common/Digitalk.Carrier.Data.Tests/",
+        assert solutions["customer-data"]["owned_paths"] == [
+            "libraries/Customer.Data/",
+            "libraries/Customer.Data.Tests/",
         ]
-        assert "Web/Common/Digitalk.Carrier.Data.Tests/" not in payload["excluded_paths"]
+        assert "libraries/Customer.Data.Tests/" not in payload["excluded_paths"]
         assert "vendor/" not in {item["owned_paths"][0] for item in payload["solutions"]}
         assert "vendor/" in payload["excluded_paths"]
         assert payload["review_required"] is True
