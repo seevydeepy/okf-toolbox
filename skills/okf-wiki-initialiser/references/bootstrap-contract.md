@@ -42,6 +42,16 @@ Prefer the bundled script over hand-writing infrastructure:
 python <okf-toolbox>\skills\okf-wiki-initialiser\scripts\bootstrap_okf.py --repo . --spec okf-bootstrap.json
 ```
 
+Before authoring the spec, discover repository-wide candidate seams without writing tracked files:
+
+```powershell
+python <okf-toolbox>\skills\okf-wiki-initialiser\scripts\bootstrap_okf.py --repo . --discover-only > okf-bootstrap.json
+```
+
+Review that temporary output before use. Discovery does not use the repository or branch name as a product-priority signal. It groups related build descriptors under evidenced semantic family roots, then falls back in this order: production solution/workspace, project/package, top-level source directory. Test/QA/benchmark/sample/example descriptors are supporting evidence for a production owner, not independent bundle candidates. Where source and dependency evidence identifies a stronger product owner, replace project fallbacks with that owner; do not invent a relationship merely to reduce bundle count.
+
+After review, resolve every reported `uncovered_root` by assigning an evidenced owner, adding a legitimate semantic bundle, or excluding non-product/generated/vendor material, then pass the file to `--spec`. `--discover` performs discovery and bootstrap in one command and is reserved for a candidate set already shown to be unambiguous in the current task; it fails closed while uncovered roots remain.
+
 Minimal `okf-bootstrap.json`:
 
 ```json
@@ -57,6 +67,8 @@ Minimal `okf-bootstrap.json`:
   ]
 }
 ```
+
+The spec may also contain top-level `excluded_paths` for test, QA, benchmark, sample, generated, or third-party roots that must not become standalone bundles. Discovery emits uncovered test/support descriptor roots here; review them before bootstrap and map a test path to its production owner instead when that relationship is evidenced.
 
 For one-off use, repeat `--solution` instead:
 
@@ -85,6 +97,8 @@ Each solution entry must contain:
 - `owned_paths`: path prefixes or exact files used by `map_changed_paths.py`.
 - `routing_keywords`: search/symptom terms.
 - `docs.root`, `docs.routing_guidance_card`, `docs.solution`, `docs.routing`, `docs.log`, `docs.wiki`.
+
+Temporary discovery specs may also contain per-solution `discovery.basis`, `discovery.confidence`, and `discovery.evidence` plus top-level warnings. These are review evidence and are deliberately omitted from the stable generated manifest.
 
 ## Bundle contract
 

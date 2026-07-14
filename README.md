@@ -29,7 +29,7 @@ Cursor engagement is driven by the always-on rules. Codex also allows implicit i
 
 ## What you do in a repository
 
-1. **First time in a repo without OKF** — Ask the agent to bootstrap OKF (or invoke `$okf-wiki-initialiser`). The agent inspects repo layout first; manifest, route-card, validation-tooling, and generated-reader writes require active-mode implementation/tracked-doc authority.
+1. **First time in a repo without OKF** — Ask the agent to bootstrap OKF (or invoke `$okf-wiki-initialiser`). The initialiser discovers repository-wide semantic product seams without using the feature/branch name as a priority signal, then falls back to production solution or project descriptors when stronger ownership evidence is absent. Review unresolved roots before writing; manifest, route-card, validation-tooling, and generated-reader writes require active-mode implementation/tracked-doc authority.
 2. **Normal work** — Work as usual. When `docs/solutions.manifest.json` (or equivalent under `documentation/`, `wiki/`, etc.) exists, agents gather route evidence at turn start and run the archivist pass at turn end when changes warrant it. Follow the active agent, planning, worktree, tracked-doc, and approval gates separately.
 3. **Deep backfill** — Optional second pass to fill entrypoints, handoffs, and evidence-backed routing prose per solution; requires explicit active-mode authority after a successful shallow bootstrap.
 

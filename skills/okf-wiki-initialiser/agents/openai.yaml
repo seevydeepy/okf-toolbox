@@ -1,7 +1,7 @@
 interface:
   display_name: "OKF Route Pack Initialiser"
-  short_description: "Bootstrap OKF route-pack infrastructure."
-  default_prompt: "Use $okf-wiki-initialiser to plan or perform OKF route-pack bootstrap for this repository; do not write tracked files, backfill, or rebuild generated readers until active-mode implementation/tracked-doc authority exists."
+  short_description: "Discover product seams and bootstrap OKF route packs."
+  default_prompt: "Use $okf-wiki-initialiser to discover repository-wide semantic product seams and plan or perform OKF route-pack bootstrap; do not infer priority from a feature or branch name, and do not write tracked files, backfill, or rebuild generated readers until active-mode implementation/tracked-doc authority exists."
 
 policy:
   allow_implicit_invocation: true

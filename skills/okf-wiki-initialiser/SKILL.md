@@ -1,6 +1,6 @@
 ---
 name: okf-wiki-initialiser
-description: "Bootstrap, repair, or backfill OKF route-pack and wiki infrastructure. Use only when the user explicitly asks to initialise, repair, or backfill, or when expected OKF infrastructure is demonstrably broken; mere absence supports diagnosis or proposal only."
+description: "Bootstrap, repair, or backfill OKF route-pack and wiki infrastructure, including repository-wide discovery of semantic product seams with solution/project fallbacks. Use only when the user explicitly asks to initialise, repair, or backfill, or when expected OKF infrastructure is demonstrably broken; mere absence supports diagnosis or proposal only."
 ---
 
 # OKF Route-Pack Initialiser
@@ -34,10 +34,18 @@ Use this when a repo already has OKF files that drifted from `references/bootstr
 ## Shallow Pass
 
 1. Respect local agent instructions (`AGENTS.md`, `.codex/config.toml`, `.cursor/rules/`) and repo memory.
-2. Inspect `git status --short`, top-level layout, build files, project/package files, existing docs, and obvious runtime/application entrypoints.
-3. Choose logical solutions/subsystems from real boundaries: projects, apps, services, packages, routes, modules, or domain folders. Prefer fewer accurate bundles over many guessed bundles.
-4. Create a tiny bootstrap spec, usually in a temp file, with each solution's `id`, `name`, `summary`, `owned_paths`, and `keywords`, only when plan/ledger rules permit that pre-approval artefact or after approval.
-5. After approval, run the bundled bootstrapper:
+2. Inspect `git status --short`, the complete repository layout, build/workspace files, project/package files, existing docs, runtime/application entrypoints, deployment units, domain folders, and shared-library seams. Never infer priority or ownership from the repository, checkout, branch, story, or feature name.
+3. Ask the bundled bootstrapper for a read-only candidate spec:
+
+```powershell
+python <okf-toolbox>\skills\okf-wiki-initialiser\scripts\bootstrap_okf.py --repo . --discover-only > <temp-spec>.json
+```
+
+Discovery is evidence-led and repository-wide. It first groups related build descriptors beneath a meaningful semantic family root, then falls back to production solution/workspace files, then project/package files, and finally top-level source directories only when stronger evidence is absent. Test, QA, benchmark, sample, and example descriptors do not become standalone bundles; keep them inside or map them back to their production owner.
+
+4. Review and correct the candidate spec before writing. Every independently deployed or operated service/application must receive equal consideration, regardless of the current feature focus. Prefer stable product/domain ownership over one bundle per file, but retain solution/project fallbacks when no stronger seam is evidenced. Collapse shared implementation projects into a product owner when source/dependency evidence supports that relationship; otherwise retain the explicit project fallback rather than guessing. Resolve every reported `uncovered_root` by assigning an evidenced owner, adding a legitimate semantic bundle, or excluding non-product/generated/vendor material. Reject unexplained broad catch-all roots, overlapping prefixes, missing production descriptors, and feature-name bias.
+5. Keep the reviewed bootstrap spec in a temp file with each solution's `id`, `name`, `summary`, `owned_paths`, and `keywords`, only when plan/ledger rules permit that pre-approval artefact or after approval. `discovery` evidence fields may remain in the temp spec; the generated manifest intentionally keeps only the stable routing contract.
+6. After approval, run the bundled bootstrapper with the reviewed spec:
 
 ```powershell
 python <okf-toolbox>\skills\okf-wiki-initialiser\scripts\bootstrap_okf.py --repo . --spec <spec.json>
@@ -45,9 +53,15 @@ python <okf-toolbox>\skills\okf-wiki-initialiser\scripts\bootstrap_okf.py --repo
 
 Use repeated `--solution "id|Name|Summary|path1,path2|keyword1,keyword2"` only for very small repos.
 
+When the discovery output is demonstrably unambiguous, has no `uncovered_roots`, and has already been reviewed in the current task, `--discover` may bootstrap the same inferred seams directly. The command fails closed when source roots still need semantic review:
+
+```powershell
+python <okf-toolbox>\skills\okf-wiki-initialiser\scripts\bootstrap_okf.py --repo . --discover
+```
+
 The script reuses an existing documentation root such as `docs/`, `documentation/`, `doc/`, `wiki/`, or `manual(s)/`; only creates root `docs/` when no similar folder exists. It creates the full conformant infrastructure: manifest, per-solution bundles, `routing_guidance.card`, route-card checker, mapper, wiki builder, generated-reader pipeline, and a marked root `AGENTS.md` OKF routing block.
 
-6. Run the generated pipeline:
+7. Run the generated pipeline:
 
 ```powershell
 .\tools\docs\build_all_wikis.ps1
@@ -58,7 +72,7 @@ python tools/docs/map_changed_paths.py <representative-owned-path>
 
 Confirm `AGENTS.md` contains one `OKF-ROUTING` marker block that calls `$okf-router` at the start of substantive work for route evidence only, calls `$okf-archivist` at the end of substantive changes, and does not present routing as requirements stability, plan approval, implementation authorisation, or a bypass for active workflow/repository gates.
 
-7. Remove any temporary bootstrap spec unless the user wants it tracked.
+8. Remove any temporary bootstrap spec unless the user wants it tracked.
 
 ## Deep Backfill
 

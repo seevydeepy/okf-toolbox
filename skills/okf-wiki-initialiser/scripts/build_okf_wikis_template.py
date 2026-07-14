@@ -33,7 +33,10 @@ DOC_ORDER = {
 
 
 def norm_path(value: str) -> str:
-    return value.strip().replace("\\", "/").lstrip("./")
+    cleaned = value.strip().replace("\\", "/")
+    while cleaned.startswith("./"):
+        cleaned = cleaned[2:]
+    return cleaned.lstrip("/")
 
 
 def rel(repo: Path, value: str) -> Path:
