@@ -36,12 +36,12 @@ Cursor engagement is driven by the always-on rules. Codex also allows implicit i
 ## Prerequisites (bootstrapped repositories)
 
 - **Python 3** on `PATH` (bootstrap and validation scripts).
-- **PowerShell** for `.\tools\docs\build_all_wikis.ps1` on Windows (typical Digitalk workflow).
+- **PowerShell** for `.\tools\docs\build_all_wikis.ps1` on Windows.
 - On systems without PowerShell, run the generated Python builder directly: `python tools/docs/build_okf_wikis.py --repo .` and `--check` / `--browser-smoke` as needed.
 
 ## Canonical contract
 
-This plugin defines the OKF manifest and route-card contract (`owned_paths`, `routing_guidance.card`, `tools/docs/check_okf_route_cards.py`, etc.). Older branches that still use legacy Digitalk OKF manifest shapes need migration before this plugin's tooling applies there.
+This plugin defines the OKF manifest and route-card contract (`owned_paths`, `routing_guidance.card`, `tools/docs/check_okf_route_cards.py`, etc.). Repositories that still use legacy OKF manifest shapes need migration before this plugin's tooling applies there.
 
 ## Renderer limitations
 

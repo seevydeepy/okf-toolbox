@@ -103,9 +103,13 @@ TEST_TOKENS = {
     "testing",
     "tests",
 }
-GENERIC_SEAM_NAMES = {
+# Cross-repository structural roles that organise product seams but do not
+# identify a product by themselves. Keep this list organisation-agnostic.
+GENERIC_CONTAINER_NAMES = {
     "app",
     "apps",
+    "application",
+    "applications",
     "common",
     "component",
     "components",
@@ -119,13 +123,14 @@ GENERIC_SEAM_NAMES = {
     "packages",
     "project",
     "projects",
+    "product",
+    "products",
     "service",
     "services",
     "solution",
     "solutions",
     "source",
     "src",
-    "vp",
     "web",
 }
 TOKEN_PATTERN = re.compile(r"[A-Z]+(?=[A-Z][a-z]|[0-9]|$)|[A-Z]?[a-z]+|[0-9]+")
@@ -263,7 +268,7 @@ def find_build_descriptors(repo: Path, visible_files: list[Path] | None = None) 
 
 def is_meaningful_seam_name(value: str) -> bool:
     key = name_key(value)
-    return len(key) >= 4 and key not in GENERIC_SEAM_NAMES
+    return len(key) >= 4 and key not in GENERIC_CONTAINER_NAMES
 
 
 def is_under(path: Path, root: Path) -> bool:
@@ -355,7 +360,7 @@ def candidate_owned_paths(repo: Path, candidate: DiscoveryCandidate) -> list[str
 
 
 def candidate_name(candidate: DiscoveryCandidate) -> str:
-    if candidate.root and name_key(candidate.root.name) not in GENERIC_SEAM_NAMES:
+    if candidate.root and name_key(candidate.root.name) not in GENERIC_CONTAINER_NAMES:
         return humanise_name(candidate.root.name)
     return humanise_name(descriptor_label(candidate.descriptors[0]))
 
