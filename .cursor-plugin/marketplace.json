@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "okf-toolbox",
-      "version": "1.0.5",
+      "version": "1.0.6",
       "description": "Bootstrap OKF route packs, select route-card evidence at turn start, and maintain route cards after code changes.",
       "source": "./"
     }
