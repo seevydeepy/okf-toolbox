@@ -1,6 +1,6 @@
 {
   "name": "okf-toolbox",
-  "version": "1.0.7",
+  "version": "1.0.7+codex.20260717130553",
   "description": "Bootstrap OKF route packs, select route-card evidence at turn start, and maintain route cards after code changes.",
   "author": {
     "name": "Charles van der Pol"
@@ -11,6 +11,9 @@
     "shortDescription": "Bootstrap, route, and maintain OKF route packs.",
     "longDescription": "Bootstrap OKF route-pack infrastructure in any repository, select branch-local route-card evidence before broad source inspection, and maintain route cards after substantive code changes. OKF routing does not replace requirements elicitation, active-mode implementation authority, tracked-doc approval, or repository-specific gates.",
     "developerName": "Charles van der Pol",
+    "composerIcon": "./assets/plugin-icon.png",
+    "logo": "./assets/plugin-icon.png",
+    "brandColor": "#2D6A4F",
     "category": "Productivity",
     "capabilities": [
       "Write"
